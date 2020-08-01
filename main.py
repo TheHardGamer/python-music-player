@@ -33,26 +33,26 @@ canvas.create_image(250,36, image=img)
 
 # Define about_player function
 def about_player():
-	about = Text(base)
+	about = Text(main)
 	about.insert(INSERT, "A basic music player written in python by varunhardgamer")
 	# Make the text widget read only
 	about.configure(state='disabled')
-	about.pack()
+	about.grid(row=4, column=0)
 	# Destroy the widget
 	about.after(2000, about.destroy)
 
 def contact_tg():
-	contact = Text(base)
+	contact = Text(main)
 	contact.insert(INSERT, "https://t.me/TheHardGamer")
 	contact.configure(state='disabled')
-	contact.pack()
+	contact.grid(row=4, column=0)
 	contact.after(2000, contact.destroy)
 
 def contact_github():
-	github = Text(base)
+	github = Text(main)
 	github.insert(INSERT, "https://github.com/varunhardgamer")
 	github.configure(state='disabled')
-	github.pack()
+	github.grid(row=4, column=0)
 	github.after(2000, github.destroy)
 
 # Define add_song function
