@@ -89,11 +89,14 @@ def forward_song():
 	current_song = pl.curselection()
 	upcoming_song = current_song[0] + 1
 	song = pl.get(upcoming_song)
-	pygame.mixer.music.load(song)
-	pygame.mixer.music.play(loops=0)
-	pl.selection_clear(current_song[0])
-	pl.activate(upcoming_song)
-	pl.selection_set(upcoming_song)
+	if (song > ''):
+		pygame.mixer.music.load(song)
+		pygame.mixer.music.play(loops=0)
+		pl.selection_clear(current_song[0])
+		pl.activate(upcoming_song)
+		pl.selection_set(upcoming_song)
+	else:
+		stop_song()
 
 # Define previous_song function
 def previous_song():
@@ -259,7 +262,7 @@ def yt_dl():
 		'key': 'FFmpegExtractAudio',
 		'preferredcodec': 'mp3',
 		'preferredquality': '192',
-        }],
+		}],
 	}
 	youtube_dl.YoutubeDL(ydl_opts).download([finallink])
 
