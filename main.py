@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter import filedialog as fd
 import tkinter.ttk as ttk
+import openal
+from openal import *
 from lxml import etree
 import urllib.request
 import urllib
@@ -9,6 +11,7 @@ from urllib.parse import quote_plus, urlencode
 import youtube_dl
 import pygame
 from mutagen.mp3 import MP3
+from mutagen.flac import FLAC
 import time
 
 # Create a tkinter instance
@@ -62,7 +65,7 @@ def add_song():
 
 def add_songs():
 	# askopenfilenames returns a tuple of files selected
-	songs = fd.askopenfilenames(title="Select songs", filetypes=[("Mp3 Files", "*.mp3")])
+	songs = fd.askopenfilenames(title="Select songs")
 	# Iterate the tuple
 	for song in songs:
 			pl.insert(END, song)
@@ -77,8 +80,17 @@ def play_song():
 	global isStopped
 	isStopped = False
 	song = pl.get(ACTIVE)
-	pygame.mixer.music.load(song)
-	pygame.mixer.music.play(loops=0)
+	extension = os.path.splitext(song)[1]
+	if (extension == ".mp3"):
+		oalQuit()
+		pygame.mixer.music.stop()
+		pygame.mixer.music.load(song)
+		pygame.mixer.music.play(loops=0)
+	else:
+		oalQuit()
+		pygame.mixer.music.stop()
+		sauce = oalOpen(song)
+		sauce.play()
 	song_time()
 
 # Define forward_song function
@@ -89,12 +101,22 @@ def forward_song():
 	current_song = pl.curselection()
 	upcoming_song = current_song[0] + 1
 	song = pl.get(upcoming_song)
+	extension = os.path.splitext(song)[1]
+	pl.selection_clear(current_song[0])
+	pl.activate(upcoming_song)
+	pl.selection_set(upcoming_song)
 	if (song > ''):
-		pygame.mixer.music.load(song)
-		pygame.mixer.music.play(loops=0)
-		pl.selection_clear(current_song[0])
-		pl.activate(upcoming_song)
-		pl.selection_set(upcoming_song)
+		if (extension == ".mp3"):
+			oalQuit()
+			pygame.mixer.music.stop()
+			pygame.mixer.music.load(song)
+			pygame.mixer.music.play(loops=0)
+
+		else:
+			oalQuit()
+			pygame.mixer.music.stop()
+			sauce = oalOpen(song)
+			sauce.play()
 	else:
 		stop_song()
 
@@ -106,11 +128,20 @@ def previous_song():
 	current_song = pl.curselection()
 	previous_song = current_song[0] - 1
 	song = pl.get(previous_song)
-	pygame.mixer.music.load(song)
-	pygame.mixer.music.play(loops=0)
+	extension = os.path.splitext(song)[1]
 	pl.selection_clear(current_song[0])
 	pl.activate(previous_song)
 	pl.selection_set(previous_song)
+	if (extension == ".mp3"):
+		oalQuit()
+		pygame.mixer.music.stop()
+		pygame.mixer.music.load(song)
+		pygame.mixer.music.play(loops=0)
+	else:
+		oalQuit()
+		pygame.mixer.music.stop()
+		sauce = oalOpen(song)
+		sauce.play()
 
 # Define pause_song function
 global isPaused
@@ -118,10 +149,12 @@ isPaused = False
 def pause_song(is_paused):
 	global isPaused
 	isPaused = is_paused
+	song = pl.get(ACTIVE)
 	if isPaused:
 		isPaused = False
 		pygame.mixer.music.unpause()
 	else:
+		oalQuit()
 		pygame.mixer.music.pause()
 		isPaused = True
 
@@ -130,6 +163,7 @@ global isStopped
 isStopped = False
 def stop_song():
 	global isStopped
+	oalQuit()
 	pygame.mixer.music.stop()
 	# Clear the selected song
 	pl.selection_clear(ACTIVE)
@@ -142,12 +176,16 @@ def song_time():
 		return
 	# Get currently playing song
 	current_song = pl.get(ACTIVE)
+	extension = os.path.splitext(current_song)[1]
 	# Get song's current position
 	sec = pygame.mixer.music.get_pos() / 1000
 	# Convert it to MM:SS format
 	formatted_time = time.strftime('%M:%S', time.gmtime(sec))
 	# Invoke mutagen
-	mut = MP3(current_song)
+	if (extension == ".mp3"):
+		mut = MP3(current_song)
+	else:
+		mut = FLAC(current_song)
 	# Get the total length of currently playing song
 	length = mut.info.length
 	# Convert it to MM:SS format
@@ -177,9 +215,15 @@ def slider(x):
 	# Check if the music is stopped and stop updating
 	if (isStopped):
 		return
+	# Do nothing if the music being played isnt mp3[WIP]
 	song = pl.get(ACTIVE)
-	pygame.mixer.music.load(song)
-	pygame.mixer.music.play(loops=0, start=song_slider.get())
+	extension = os.path.splitext(song)[1]
+	if (extension == ".mp3"):
+		pygame.mixer.music.load(song)
+		pygame.mixer.music.play(loops=0, start=song_slider.get())
+	else:
+		# [TEMP] Disable the slider
+		song_slider.config(state='disabled')
 
 # playlist box
 pl = Listbox(main, bg="black", fg="red", width=90, selectbackground="green")

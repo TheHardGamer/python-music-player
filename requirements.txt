@@ -1,4 +1,5 @@
 lxml
 pygame
 mutagen
+PyOpenAL
 youtube_dl==2020.7.28
