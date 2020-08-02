@@ -1,6 +1,9 @@
 from tkinter import *
 from tkinter import filedialog as fd
 import tkinter.ttk as ttk
+from ttkthemes import ThemedTk
+from ttkthemes import ThemedStyle
+from tkinter import ttk
 import openal
 from openal import *
 from lxml import etree
@@ -23,16 +26,20 @@ pygame.mixer.init()
 # The title and resolution of the app
 base.title("TheRagingBeast")
 base.geometry("800x600")
+base.configure(bg="black")
 
 # Create the main skeleton
 main = Frame(base)
 main.pack(pady=10)
+main.configure(bg="black")
+theme = ThemedStyle(main)
 
 # Fancy Image
 canvas = Canvas(main, width=500, height=66)
 canvas.grid(row=0, column=0)
 img = PhotoImage(file="pics/logo.png")
 canvas.create_image(250,36, image=img)
+canvas.configure(bg="black", highlightthickness=0)
 
 # Define about_player function
 def about_player():
@@ -79,6 +86,8 @@ def del_song():
 def play_song():
 	global isStopped
 	isStopped = False
+	song_slider.config(value=0)
+	info_bar.config(text="0")
 	song = pl.get(ACTIVE)
 	extension = os.path.splitext(song)[1]
 	if (extension == ".mp3"):
@@ -230,6 +239,8 @@ pl = Listbox(main, bg="black", fg="red", width=90, selectbackground="green")
 pl.grid(row=1, column=0, pady=10)
 
 # Song slider widget
+style = ttk.Style()
+style.theme_use('equilux')
 song_slider = ttk.Scale(main, from_=0, orient=HORIZONTAL, length=500, command=slider)
 song_slider.grid(row=2, column=0, pady=10)
 
@@ -259,36 +270,43 @@ contact_menu.add_command(label="Github", command=contact_github)
 # Frame for the play/pause buttons
 buttonsframe = Frame(main)
 buttonsframe.grid(row=3, column=0, pady=10)
+buttonsframe.configure(bg="black")
 
 # Back Button
 backbuttonImage = PhotoImage(file="pics/back.png")
 backbutton = Button(buttonsframe, image=backbuttonImage, height=64, width=64, borderwidth=0, command=previous_song)
 backbutton.grid(row=0, column=0, padx=10, pady=10)
+backbutton.configure(bg="black")
 
 # Pause Button
 pausebuttonImage = PhotoImage(file="pics/pause.png")
 # We need to know if the song is paused or not and so we require a sort of boolean which is passed through lambda
 pausebutton = Button(buttonsframe, image=pausebuttonImage, height=64, width=64, borderwidth=0, command=lambda: pause_song(isPaused))
 pausebutton.grid(row=0, column=1, padx=10, pady=10)
+pausebutton.configure(bg="black")
 
 # Play Button
 playbuttonImage = PhotoImage(file="pics/play.png")
 playbutton = Button(buttonsframe, image=playbuttonImage, height=64, width=64, borderwidth=0, command=play_song)
 playbutton.grid(row=0, column=2, padx=10, pady=10)
+playbutton.configure(bg="black")
 
 # Stop Button
 stopbuttonImage = PhotoImage(file="pics/stop.png")
 stopbutton = Button(buttonsframe, image=stopbuttonImage, height=64, width=64, borderwidth=0, command=stop_song)
 stopbutton.grid(row=0, column=3, padx=10, pady=10)
+stopbutton.configure(bg="black")
 
 # Forward Button
 forwardImage = PhotoImage(file="pics/forward.png")
 forwardbutton = Button(buttonsframe, image=forwardImage, height=64, width=64, borderwidth=0, command=forward_song)
 forwardbutton.grid(row=0, column=4, padx=10, pady=10)
+forwardbutton.configure(bg="black")
 
 # Bring the info bar into existence
 info_bar = Label(base, text="", bd=2, relief=RAISED)
 info_bar.pack(fill=X, side=BOTTOM, ipady=2)
+info_bar.configure(bg="black")
 
 # Define yt_dl function
 def yt():
@@ -310,21 +328,21 @@ def yt_dl():
 	}
 	youtube_dl.YoutubeDL(ydl_opts).download([finallink])
 
-
 enter_url = Text(main, borderwidth=0)
 enter_url.insert(INSERT, "Enter a youtube video URL in the following box")
 enter_url.insert(INSERT, "\nTo convert it to audio and download it.")
 enter_url.insert(INSERT, "\nAfter entering URL, Hit Parse URL and then Convert and Download")
-enter_url.configure(height=3, state='disabled')
-enter_url.grid(row=4, column=0, pady=10)
+enter_url.configure(height=3, state='disabled', bg="black")
+enter_url.configure(font=("Helvetica", 10, "normal"))
+enter_url.grid(row=4, column=0, pady=3)
 
 link = Text(base, bg="black", fg="red")
 link.configure(height=1)
-link.pack()
+link.pack(pady=5)
 readlink = Button(base, text="Parse URL", command=yt)
-readlink.pack()
+readlink.pack(pady=2)
 ytdl_button = Button(base, text="Convert and Download", command=yt_dl)
-ytdl_button.pack()
+ytdl_button.pack(pady=2)
 
 # Set app icon
 icon = PhotoImage(file="pics/icon.png")
