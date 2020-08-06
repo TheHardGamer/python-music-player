@@ -6,6 +6,7 @@ from ttkthemes import ThemedStyle
 from tkinter import ttk
 import openal
 from openal import *
+import pyogg
 from lxml import etree
 import urllib.request
 import urllib
@@ -15,6 +16,7 @@ import youtube_dl
 import pygame
 from mutagen.mp3 import MP3
 from mutagen.flac import FLAC
+from pydub import AudioSegment
 import time
 
 # Create a tkinter instance
@@ -64,6 +66,15 @@ def contact_github():
 	github.configure(state='disabled')
 	github.grid(row=4, column=0)
 	github.after(2000, github.destroy)
+
+def convertor_help():
+	convertor = Text(main)
+	convertor.insert(INSERT, "Convert the currently selected file in the List to MP3")
+	convertor.insert(INSERT, "\nTap The Convert button under the Convert sub-menu to convert")
+	convertor.insert(INSERT, "\nthe currently selected file in the box to MP3")
+	convertor.configure(state='disabled')
+	convertor.grid(row=4, column=0)
+	convertor.after(5000, convertor.destroy)
 
 # Define add_song function
 def add_song():
@@ -234,6 +245,12 @@ def slider(x):
 		# [TEMP] Disable the slider
 		song_slider.config(state='disabled')
 
+def convert_song():
+	song = pl.get(ACTIVE)
+	strippedname = os.path.split(song)[1]
+	finalname = os.path.basename(strippedname)
+	AudioSegment.from_file(song).export(finalname + ".mp3", format="mp3", bitrate="192k")
+
 # playlist box
 pl = Listbox(main, bg="black", fg="red", width=90, selectbackground="green")
 pl.grid(row=1, column=0, pady=10)
@@ -261,6 +278,11 @@ songs_menu.add_command(label="Delete song", command=del_song)
 about_menu = Menu(top_menu, tearoff=0)
 top_menu.add_cascade(label="About", menu=about_menu)
 about_menu.add_command(label="The player", command=about_player)
+
+convertor_menu= Menu(top_menu, tearoff=0)
+top_menu.add_cascade(label="MP3 convertor", menu=convertor_menu)
+convertor_menu.add_command(label="Help", command=convertor_help)
+convertor_menu.add_command(label="Convert", command=convert_song)
 
 contact_menu = Menu(top_menu, tearoff=0)
 top_menu.add_cascade(label="Contact me", menu=contact_menu)
@@ -315,8 +337,6 @@ def yt():
 
 def yt_dl():
 	finallink = yt()
-	print("k")
-	print(finallink)
 	ydl_opts = {
 	'format': 'bestaudio/best',
 	'outtmpl': '%(id)s.%(ext)s',
@@ -336,13 +356,13 @@ enter_url.configure(height=3, state='disabled', bg="black")
 enter_url.configure(font=("Helvetica", 10, "normal"))
 enter_url.grid(row=4, column=0, pady=3)
 
-link = Text(base, bg="black", fg="red")
+link = Text(main, bg="black", fg="red")
 link.configure(height=1)
-link.pack(pady=5)
-readlink = Button(base, text="Parse URL", command=yt)
-readlink.pack(pady=2)
-ytdl_button = Button(base, text="Convert and Download", command=yt_dl)
-ytdl_button.pack(pady=2)
+link.grid(row=5, column=0, pady=5)
+readlink = Button(main, text="Parse URL", command=yt)
+readlink.grid(row=6, column=0, pady=2)
+ytdl_button = Button(main, text="Download YT as MP3", command=yt_dl)
+ytdl_button.grid(row=7, column=0, pady=2)
 
 # Set app icon
 icon = PhotoImage(file="pics/icon.png")
