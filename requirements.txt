@@ -4,4 +4,6 @@ mutagen
 PyOpenAL
 pydub
 pyogg
+pafy
+python-vlc
 youtube_dl==2020.7.28

@@ -18,6 +18,8 @@ from mutagen.mp3 import MP3
 from mutagen.flac import FLAC
 from pydub import AudioSegment
 import time
+import pafy
+import vlc
 
 # Create a tkinter instance
 base = Tk()
@@ -131,7 +133,6 @@ def forward_song():
 			pygame.mixer.music.stop()
 			pygame.mixer.music.load(song)
 			pygame.mixer.music.play(loops=0)
-
 		else:
 			oalQuit()
 			pygame.mixer.music.stop()
@@ -348,21 +349,50 @@ def yt_dl():
 	}
 	youtube_dl.YoutubeDL(ydl_opts).download([finallink])
 
+global player
+def stream():
+	global player
+	finallink = yt()
+	video = pafy.new(finallink)
+	best = video.getbest()
+	playurl = best.url
+	Instance = vlc.Instance()
+	player = Instance.media_player_new()
+	Media = Instance.media_new(playurl)
+	Media.get_mrl()
+	player.set_media(Media)
+	player.play()
+
+def pause_stream():
+	global player
+	player.pause()
+
+def stop_stream():
+	global player
+	player.stop()
+
 enter_url = Text(main, borderwidth=0)
 enter_url.insert(INSERT, "Enter a youtube video URL in the following box")
-enter_url.insert(INSERT, "\nTo convert it to audio and download it.")
-enter_url.insert(INSERT, "\nAfter entering URL, Hit Parse URL and then Convert and Download")
-enter_url.configure(height=3, state='disabled', bg="black")
+enter_url.insert(INSERT, "\nAnd stream/download it as mp3 with the respective buttons")
+enter_url.configure(height=2, state='disabled', bg="black")
 enter_url.configure(font=("Helvetica", 10, "normal"))
 enter_url.grid(row=4, column=0, pady=3)
 
 link = Text(main, bg="black", fg="red")
 link.configure(height=1)
 link.grid(row=5, column=0, pady=5)
-readlink = Button(main, text="Parse URL", command=yt)
-readlink.grid(row=6, column=0, pady=2)
-ytdl_button = Button(main, text="Download YT as MP3", command=yt_dl)
-ytdl_button.grid(row=7, column=0, pady=2)
+# Frame for YT buttons
+ytframe = Frame(main)
+ytframe.grid(row=6, column=0, pady=5)
+ytframe.configure(bg="black")
+ytdl_button = Button(ytframe, text="Download YT as MP3", command=yt_dl)
+ytdl_button.grid(row=1, column=0, padx=2)
+ytdl_button = Button(ytframe, text="Stream The above YT link", command=stream)
+ytdl_button.grid(row=1, column=1, padx=2)
+ytdl_button = Button(ytframe, text="Pause/Resume the stream", command=pause_stream)
+ytdl_button.grid(row=1, column=2, padx=2)
+ytdl_button = Button(ytframe, text="Stop the stream", command=stop_stream)
+ytdl_button.grid(row=1, column=4, padx=2)
 
 # Set app icon
 icon = PhotoImage(file="pics/icon.png")
