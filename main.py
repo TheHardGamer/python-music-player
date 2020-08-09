@@ -115,7 +115,10 @@ def play_song():
 		sauce.play()
 	song_slider.config(to=0, value=0)
 	info_bar.config(text="0")
-	song_time()
+	if (islooping == True):
+		pass
+	else:
+		song_time()
 
 # Define forward_song function
 def forward_song():
@@ -129,6 +132,10 @@ def forward_song():
 	pl.selection_clear(current_song[0])
 	pl.activate(upcoming_song)
 	pl.selection_set(upcoming_song)
+	if (islooping == True):
+		pass
+	else:
+		song_time()
 	if (song > ''):
 		if (extension == ".mp3"):
 			oalQuit()
@@ -142,7 +149,6 @@ def forward_song():
 			sauce.play()
 		song_slider.config(to=0, value=0)
 		info_bar.config(text="0")
-		song_time()
 	else:
 		stop_song()
 
@@ -157,6 +163,10 @@ def previous_song():
 	pl.selection_clear(current_song[0])
 	pl.activate(previous_song)
 	pl.selection_set(previous_song)
+	if (islooping == True):
+		pass
+	else:
+		song_time()
 	if (extension == ".mp3"):
 		oalQuit()
 		pygame.mixer.music.stop()
@@ -169,28 +179,35 @@ def previous_song():
 		sauce.play()
 	song_slider.config(to=0, value=0)
 	info_bar.config(text="0")
-	song_time()
 
 # Define pause_song function
 global isPaused
 isPaused = False
 def pause_song(is_paused):
 	global isPaused
+	global islooping
 	isPaused = is_paused
 	song = pl.get(ACTIVE)
+	if (islooping == True):
+		pass
+	else:
+		song_time()
 	if isPaused:
 		isPaused = False
 		pygame.mixer.music.unpause()
+		song_time()
 	else:
 		oalQuit()
 		pygame.mixer.music.pause()
 		isPaused = True
+		islooping = False
 
 # Define stop_song function
 global isStopped
 isStopped = False
 def stop_song():
 	global isStopped
+	global islooping
 	oalQuit()
 	pygame.mixer.music.stop()
 	# Clear the selected song
@@ -198,10 +215,15 @@ def stop_song():
 	info_bar.config(text="00:00")
 	song_slider.config(value=0)
 	isStopped = True
+	islooping = False
 
+global islooping
+islooping = False
 def song_time():
 	if (isStopped == True):
 		return
+	global islooping
+	islooping = True
 	# Get currently playing song
 	current_song = pl.get(ACTIVE)
 	extension = os.path.splitext(current_song)[1]
@@ -221,28 +243,31 @@ def song_time():
 		if sec >= 0:
 			# Add it as text to info bar
 			info_bar.config(text=final_time)
-		# Loop it every 1s to update time
-		info_bar.after(1000, song_time)
 		# Compare the sliders position and the length of the song and stop the song if they are equal
-		if int(sec) == int(length):
+		if int(sec) >= int(length):
 			forward_song()
 		elif isPaused:
 			pass
 		else:
 			# Move slider along every 1 second
 			song_slider.config(to=length)
-			next_time = int(sec)
+			next_time = song_slider.get()+1
 			song_slider.config(value=next_time)
+			if(song_slider.get() > length):
+				song_slider.config(value=length)
 			total_length = length_time
 			# Format the time of slider's position
 			slider_time = time.strftime('%M:%S', time.gmtime(int(song_slider.get()))) + "/" + length_time
 			info_bar.config(text=slider_time)
+			song_slider.after(1000, song_time)
 	else:
 		# TEMP Disable stuff while playing flac for now
 		mut = FLAC(current_song)
 		length = mut.info.length
 		length_time = time.strftime('%M:%S', time.gmtime(length))
 		info_bar.config(text=length_time)
+		islooping = False
+	return
 
 def slider(x):
 	# Check if the music is stopped and stop updating
