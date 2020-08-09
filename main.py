@@ -95,13 +95,16 @@ def del_song():
 	# ANCHOR is the selected item in the listbox widget
 	pl.delete(ANCHOR)
 
+global curr_play
 # Define play_song function
 def play_song():
 	global isStopped
+	global curr_play
 	isStopped = False
 	song_slider.config(to=0, value=0)
 	info_bar.config(text="0")
 	song = pl.get(ACTIVE)
+	curr_play = song
 	extension = os.path.splitext(song)[1]
 	if (extension == ".mp3"):
 		oalQuit()
@@ -116,7 +119,7 @@ def play_song():
 	song_slider.config(to=0, value=0)
 	info_bar.config(text="0")
 	if (islooping == True):
-		pass
+		return
 	else:
 		song_time()
 
@@ -124,10 +127,12 @@ def play_song():
 def forward_song():
 	song_slider.config(to=0, value=0)
 	global isStopped
+	global curr_play
 	isStopped = False
 	current_song = pl.curselection()
 	upcoming_song = current_song[0] + 1
 	song = pl.get(upcoming_song)
+	curr_play = song
 	extension = os.path.splitext(song)[1]
 	pl.selection_clear(current_song[0])
 	pl.activate(upcoming_song)
@@ -156,9 +161,11 @@ def forward_song():
 def previous_song():
 	global isStopped
 	isStopped = False
+	global curr_play
 	current_song = pl.curselection()
 	previous_song = current_song[0] - 1
 	song = pl.get(previous_song)
+	curr_play = song
 	extension = os.path.splitext(song)[1]
 	pl.selection_clear(current_song[0])
 	pl.activate(previous_song)
@@ -224,8 +231,11 @@ def song_time():
 		return
 	global islooping
 	islooping = True
+	global curr_play
 	# Get currently playing song
-	current_song = pl.get(ACTIVE)
+	current_song = curr_play
+	if (str(curr_play) is pl.get(ACTIVE)):
+		return
 	extension = os.path.splitext(current_song)[1]
 	# Get song's current position
 	sec = pygame.mixer.music.get_pos() / 1000
@@ -244,7 +254,8 @@ def song_time():
 			# Add it as text to info bar
 			info_bar.config(text=final_time)
 		# Compare the sliders position and the length of the song and stop the song if they are equal
-		if int(sec) >= int(length):
+		if song_slider.get() >= int(length):
+			islooping = True
 			forward_song()
 		elif isPaused:
 			pass
@@ -259,14 +270,14 @@ def song_time():
 			# Format the time of slider's position
 			slider_time = time.strftime('%M:%S', time.gmtime(int(song_slider.get()))) + "/" + length_time
 			info_bar.config(text=slider_time)
-			song_slider.after(1000, song_time)
 	else:
 		# TEMP Disable stuff while playing flac for now
 		mut = FLAC(current_song)
 		length = mut.info.length
 		length_time = time.strftime('%M:%S', time.gmtime(length))
 		info_bar.config(text=length_time)
-		islooping = False
+	islooping = True
+	info_bar.after(1000, song_time)
 	return
 
 def slider(x):
@@ -290,7 +301,7 @@ def convert_song():
 	AudioSegment.from_file(song).export(finalname + ".mp3", format="mp3", bitrate="192k")
 
 # playlist box
-pl = Listbox(main, bg="black", fg="red", width=90, selectbackground="green")
+pl = Listbox(main, bg="black", fg="white", width=90, selectbackground="blue")
 pl.grid(row=1, column=0, pady=10)
 
 # Song slider widget
