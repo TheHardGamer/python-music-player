@@ -195,14 +195,9 @@ def pause_song(is_paused):
 	global islooping
 	isPaused = is_paused
 	song = pl.get(ACTIVE)
-	if (islooping == True):
-		pass
-	else:
-		song_time()
 	if isPaused:
 		isPaused = False
 		pygame.mixer.music.unpause()
-		song_time()
 	else:
 		oalQuit()
 		pygame.mixer.music.pause()
@@ -256,7 +251,13 @@ def song_time():
 		# Compare the sliders position and the length of the song and stop the song if they are equal
 		if song_slider.get() >= int(length):
 			islooping = True
-			forward_song()
+			current_song = pl.curselection()
+			upcoming_song = current_song[0] + 1
+			song = pl.get(upcoming_song)
+			if(song > ''):
+				forward_song()
+			else:
+				pass
 		elif isPaused:
 			pass
 		else:
