@@ -5,5 +5,7 @@ PyOpenAL
 pydub
 pyogg
 pafy
+qtwidgets
+PyQt5
 python-vlc
 youtube_dl==2020.7.28
