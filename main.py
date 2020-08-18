@@ -83,11 +83,6 @@ def convertor_help():
 	convertor.grid(row=4, column=0)
 	convertor.after(5000, convertor.destroy)
 
-# Define add_song function
-def add_song():
-	song = fd.askopenfilename(title="Select a song")
-	pl.insert(END, song)
-
 def add_songs():
 	# askopenfilenames returns a tuple of files selected
 	songs = fd.askopenfilenames(title="Select songs")
@@ -325,9 +320,8 @@ songs_menu = Menu(top_menu, tearoff=0)
 # Add a sub-menu named "Add songs" under the menu skeleton and add an empty sub-menu under it
 top_menu.add_cascade(label="Songs", menu=songs_menu)
 # Populate the empty sub-menu
-songs_menu.add_command(label="Add song", command=add_song)
-songs_menu.add_command(label="Add songs", command=add_songs)
-songs_menu.add_command(label="Delete song", command=del_song)
+songs_menu.add_command(label="Add Songs", command=add_songs)
+songs_menu.add_command(label="Delete selected song", command=del_song)
 
 # Add a sub-menu under the menu skeleton
 about_menu = Menu(top_menu, tearoff=0)
