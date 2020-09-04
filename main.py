@@ -25,6 +25,9 @@ from qtwidgets import EqualizerBar
 import random
 import threading
 import vlc
+import pyglet
+
+pyglet.font.add_file('googlesans.ttf')
 
 # Create a tkinter instance
 base = Tk()
@@ -53,9 +56,9 @@ canvas.configure(bg="black", highlightthickness=0)
 # Define about_player function
 def about_player():
 	about = Text(main)
-	about.insert(INSERT, "A basic music player written in python by varunhardgamer")
+	about.insert(INSERT, "A music player written in python by varunhardgamer")
 	# Make the text widget read only
-	about.configure(state='disabled')
+	about.configure(state='disabled', font=("Google Sans",10))
 	about.grid(row=4, column=0)
 	# Destroy the widget
 	about.after(2000, about.destroy)
@@ -63,14 +66,14 @@ def about_player():
 def contact_tg():
 	contact = Text(main)
 	contact.insert(INSERT, "https://t.me/TheHardGamer")
-	contact.configure(state='disabled')
+	contact.configure(state='disabled', font=("Google Sans",10))
 	contact.grid(row=4, column=0)
 	contact.after(2000, contact.destroy)
 
 def contact_github():
 	github = Text(main)
 	github.insert(INSERT, "https://github.com/varunhardgamer")
-	github.configure(state='disabled')
+	github.configure(state='disabled', font=("Google Sans",10))
 	github.grid(row=4, column=0)
 	github.after(2000, github.destroy)
 
@@ -79,7 +82,7 @@ def convertor_help():
 	convertor.insert(INSERT, "Convert the currently selected file in the List to MP3")
 	convertor.insert(INSERT, "\nTap The Convert button under the Convert sub-menu to convert")
 	convertor.insert(INSERT, "\nthe currently selected file in the box to MP3")
-	convertor.configure(state='disabled')
+	convertor.configure(state='disabled', font=("Google Sans", 10))
 	convertor.grid(row=4, column=0)
 	convertor.after(5000, convertor.destroy)
 
@@ -304,6 +307,7 @@ def convert_song():
 # playlist box
 pl = Listbox(main, bg="black", fg="white", width=90, selectbackground="blue")
 pl.grid(row=1, column=0, pady=10)
+pl.configure(font=("Google Sans",10))
 
 # Song slider widget
 style = ttk.Style()
@@ -318,25 +322,29 @@ base.config(menu=top_menu)
 # Add an entry to the menu skeleton, define tearoff to disable the ability to detach menus from main window
 songs_menu = Menu(top_menu, tearoff=0)
 # Add a sub-menu named "Add songs" under the menu skeleton and add an empty sub-menu under it
-top_menu.add_cascade(label="Songs", menu=songs_menu)
+top_menu.add_cascade(label="Songs", menu=songs_menu, font=("Google Sans",9))
 # Populate the empty sub-menu
 songs_menu.add_command(label="Add Songs", command=add_songs)
 songs_menu.add_command(label="Delete selected song", command=del_song)
+songs_menu.configure(font=("Google Sans",9))
 
 # Add a sub-menu under the menu skeleton
 about_menu = Menu(top_menu, tearoff=0)
-top_menu.add_cascade(label="About", menu=about_menu)
+top_menu.add_cascade(label="About", menu=about_menu, font=("Google Sans",9))
 about_menu.add_command(label="The player", command=about_player)
+about_menu.configure(font=("Google Sans",9))
 
 convertor_menu= Menu(top_menu, tearoff=0)
-top_menu.add_cascade(label="MP3 convertor", menu=convertor_menu)
+top_menu.add_cascade(label="MP3 convertor", menu=convertor_menu, font=("Google Sans",9))
 convertor_menu.add_command(label="Help", command=convertor_help)
 convertor_menu.add_command(label="Convert", command=convert_song)
+convertor_menu.configure(font=("Google Sans",9))
 
 contact_menu = Menu(top_menu, tearoff=0)
-top_menu.add_cascade(label="Contact me", menu=contact_menu)
+top_menu.add_cascade(label="Contact me", menu=contact_menu, font=("Google Sans",9))
 contact_menu.add_command(label="Telegram", command=contact_tg)
 contact_menu.add_command(label="Github", command=contact_github)
+contact_menu.configure(font=("Google Sans",9))
 
 # Frame for the play/pause buttons
 buttonsframe = Frame(main)
@@ -377,7 +385,7 @@ forwardbutton.configure(bg="black")
 # Bring the info bar into existence
 info_bar = Label(base, text="", bd=2, relief=RAISED)
 info_bar.pack(fill=X, side=BOTTOM, ipady=2)
-info_bar.configure(bg="black")
+info_bar.configure(bg="black", font=("Google Sans",9))
 
 # Define yt_dl function
 def yt():
@@ -423,7 +431,7 @@ enter_url = Text(main, borderwidth=0)
 enter_url.insert(INSERT, "Enter a youtube video URL in the following box")
 enter_url.insert(INSERT, "\nAnd stream/download it as mp3 with the respective buttons")
 enter_url.configure(height=2, state='disabled', bg="black")
-enter_url.configure(font=("Helvetica", 10, "normal"))
+enter_url.configure(font=("Google Sans", 10, "normal"))
 enter_url.grid(row=4, column=0, pady=3)
 
 link = Text(main, bg="black", fg="red")
@@ -433,19 +441,16 @@ link.grid(row=5, column=0, pady=5)
 ytframe = Frame(main)
 ytframe.grid(row=6, column=0, pady=5)
 ytframe.configure(bg="black")
-ytdl_button = Button(ytframe, text="Download YT as MP3", command=yt_dl)
+ytdl_button = Button(ytframe, text="Download YT as MP3", font=("Google Sans",9), command=yt_dl)
 ytdl_button.grid(row=1, column=0, padx=2)
-ytdl_button = Button(ytframe, text="Stream The above YT link", command=stream)
+ytdl_button = Button(ytframe, text="Stream The above YT link", font=("Google Sans",9), command=stream)
 ytdl_button.grid(row=1, column=1, padx=2)
-ytdl_button = Button(ytframe, text="Pause/Resume the stream", command=pause_stream)
+ytdl_button = Button(ytframe, text="Pause/Resume the stream", font=("Google Sans",9), command=pause_stream)
 ytdl_button.grid(row=1, column=2, padx=2)
-ytdl_button = Button(ytframe, text="Stop the stream", command=stop_stream)
+ytdl_button = Button(ytframe, text="Stop the stream", font=("Google Sans",9), command=stop_stream)
 ytdl_button.grid(row=1, column=4, padx=2)
 
-global showviz
-showviz = True
 def show_eq():
-	showviz = True
 	if(song_slider.get() > 1):
 		class Window(QtWidgets.QMainWindow):
 
@@ -475,7 +480,7 @@ def show_eq():
 		t = threading.Thread(target=k)
 		t.start()
 
-showeq_button = Button(main, text="Show visualizer", command=show_eq)
+showeq_button = Button(main, text="Show visualizer", font=("Google Sans",9), command=show_eq)
 showeq_button.grid(row=7, column=0)
 
 # Set app icon
