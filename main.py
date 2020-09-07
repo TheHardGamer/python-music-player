@@ -3,7 +3,6 @@ from tkinter import filedialog as fd
 import tkinter.ttk as ttk
 from ttkthemes import ThemedTk
 from ttkthemes import ThemedStyle
-from tkinter import ttk
 import openal
 from openal import *
 import pyogg
@@ -121,10 +120,9 @@ def play_song():
 		sauce.play()
 	song_slider.config(to=0, value=0)
 	info_bar.config(text="0")
-	if (islooping == True):
+	if (islooping):
 		return
-	else:
-		song_time()
+	song_time()
 
 # Define forward_song function
 def forward_song():
@@ -140,7 +138,7 @@ def forward_song():
 	pl.selection_clear(current_song[0])
 	pl.activate(upcoming_song)
 	pl.selection_set(upcoming_song)
-	if (islooping == True):
+	if (islooping):
 		pass
 	else:
 		song_time()
@@ -173,7 +171,7 @@ def previous_song():
 	pl.selection_clear(current_song[0])
 	pl.activate(previous_song)
 	pl.selection_set(previous_song)
-	if (islooping == True):
+	if (islooping):
 		pass
 	else:
 		song_time()
@@ -225,7 +223,7 @@ def stop_song():
 global islooping
 islooping = False
 def song_time():
-	if (isStopped == True):
+	if (isStopped):
 		return
 	global islooping
 	islooping = True
