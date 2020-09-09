@@ -25,6 +25,7 @@ import random
 import threading
 import vlc
 import pyglet
+import ast
 
 pyglet.font.add_file('googlesans.ttf')
 
@@ -302,6 +303,22 @@ def convert_song():
 	finalname = os.path.basename(strippedname)
 	AudioSegment.from_file(song).export(finalname + ".mp3", format="mp3", bitrate="192k")
 
+def playlist_save():
+	f = fd.asksaveasfile(mode='w', defaultextension=".txt")
+	if f is None:
+		return
+	text2save = str(pl.get(0, END))
+	f.write(text2save)
+	f.close()
+
+def playlist_import():
+	file = fd.askopenfile(mode ='r', filetypes =[('Text', '*.txt')])
+	if file is not None:
+		content = file.read()
+		data_list = ast.literal_eval(content)
+		for song in data_list:
+			pl.insert(END, song)
+
 # playlist box
 pl = Listbox(main, bg="black", fg="white", width=90, selectbackground="blue")
 pl.grid(row=1, column=0, pady=10)
@@ -324,6 +341,8 @@ top_menu.add_cascade(label="Songs", menu=songs_menu, font=("Google Sans",9))
 # Populate the empty sub-menu
 songs_menu.add_command(label="Add Songs", command=add_songs)
 songs_menu.add_command(label="Delete selected song", command=del_song)
+songs_menu.add_command(label="Create a playlist of currently added songs", command=playlist_save)
+songs_menu.add_command(label="Import a playlist", command=playlist_import)
 songs_menu.configure(font=("Google Sans",9))
 
 # Add a sub-menu under the menu skeleton
