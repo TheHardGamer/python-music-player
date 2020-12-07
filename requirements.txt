@@ -9,4 +9,4 @@ qtwidgets
 PyQt5
 python-vlc
 ttkthemes
-youtube_dl==2020.12.2
+youtube_dl==2020.12.7
