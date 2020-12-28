@@ -6,11 +6,6 @@ from ttkthemes import ThemedStyle
 import openal
 from openal import *
 import pyogg
-from lxml import etree
-import urllib.request
-import urllib
-from urllib.request import urlopen, urlretrieve
-from urllib.parse import quote_plus, urlencode
 import youtube_dl
 import pygame
 from mutagen.mp3 import MP3
@@ -56,7 +51,7 @@ canvas.configure(bg="black", highlightthickness=0)
 # Define about_player function
 def about_player():
 	about = Text(main)
-	about.insert(INSERT, "A music player written in python by varunhardgamer")
+	about.insert(INSERT, "A music player written in python by TheHardGamer")
 	# Make the text widget read only
 	about.configure(state='disabled', font=("Google Sans",10))
 	about.grid(row=4, column=0)
@@ -72,7 +67,7 @@ def contact_tg():
 
 def contact_github():
 	github = Text(main)
-	github.insert(INSERT, "https://github.com/varunhardgamer")
+	github.insert(INSERT, "https://github.com/TheHardGamer")
 	github.configure(state='disabled', font=("Google Sans",10))
 	github.grid(row=4, column=0)
 	github.after(2000, github.destroy)
