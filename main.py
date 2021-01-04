@@ -417,6 +417,10 @@ def yt_dl():
 	}
 	youtube_dl.YoutubeDL(ydl_opts).download([finallink])
 
+def vid_dl():
+	finallink = yt()
+	youtube_dl.YoutubeDL.download([finallink])
+
 global player
 def stream():
 	global player
@@ -453,12 +457,14 @@ link.grid(row=5, column=0, pady=5)
 ytframe = Frame(main)
 ytframe.grid(row=6, column=0, pady=5)
 ytframe.configure(bg="black")
-ytdl_button = Button(ytframe, text="Download YT as MP3", font=("Google Sans",9), command=yt_dl)
+ytdl_button = Button(ytframe, text="Download the video", font=("Google Sans",9), command=yt_dl)
 ytdl_button.grid(row=1, column=0, padx=2)
-ytdl_button = Button(ytframe, text="Stream The above YT link", font=("Google Sans",9), command=stream)
+ytdl_button = Button(ytframe, text="Download video as MP3", font=("Google Sans",9), command=vid_dl)
 ytdl_button.grid(row=1, column=1, padx=2)
-ytdl_button = Button(ytframe, text="Pause/Resume the stream", font=("Google Sans",9), command=pause_stream)
+ytdl_button = Button(ytframe, text="Stream The above YT link", font=("Google Sans",9), command=stream)
 ytdl_button.grid(row=1, column=2, padx=2)
+ytdl_button = Button(ytframe, text="Pause/Resume the stream", font=("Google Sans",9), command=pause_stream)
+ytdl_button.grid(row=1, column=3, padx=2)
 ytdl_button = Button(ytframe, text="Stop the stream", font=("Google Sans",9), command=stop_stream)
 ytdl_button.grid(row=1, column=4, padx=2)
 
