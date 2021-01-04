@@ -9,4 +9,5 @@ qtwidgets
 PyQt5
 python-vlc
 ttkthemes
+pyglet
 youtube_dl==2021.1.3
