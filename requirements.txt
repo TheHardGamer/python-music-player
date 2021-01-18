@@ -10,4 +10,4 @@ PyQt5
 python-vlc
 ttkthemes
 pyglet
-youtube_dl==2021.1.8
+youtube_dl==2021.1.16
