@@ -5,7 +5,6 @@ from ttkthemes import ThemedTk
 from ttkthemes import ThemedStyle
 import openal
 from openal import *
-import pyogg
 import youtube_dl
 import pygame
 from mutagen.mp3 import MP3
