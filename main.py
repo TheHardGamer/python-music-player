@@ -32,20 +32,20 @@ pygame.mixer.init()
 # The title and resolution of the app
 base.title("TheRagingBeast")
 base.geometry("800x600")
-base.configure(bg="black")
+base.configure(bg="#04030F")
 
 # Create the main skeleton
 main = Frame(base)
 main.pack(pady=10)
-main.configure(bg="black")
+main.configure(bg="#04030F")
 theme = ThemedStyle(main)
 
-# Fancy Image
+# I hav arriv
 canvas = Canvas(main, width=500, height=66)
 canvas.grid(row=0, column=0)
 img = PhotoImage(file="pics/logo.png")
 canvas.create_image(250,36, image=img)
-canvas.configure(bg="black", highlightthickness=0)
+canvas.configure(bg="#04030F", highlightthickness=0)
 
 # Define about_player function
 def about_player():
@@ -98,6 +98,7 @@ def play_song():
 	global isStopped
 	global curr_play
 	isStopped = False
+	global islooping
 	song_slider.config(to=0, value=0)
 	info_bar.config(text="0")
 	song = pl.get(ACTIVE)
@@ -314,7 +315,7 @@ def playlist_import():
 			pl.insert(END, song)
 
 # playlist box
-pl = Listbox(main, bg="black", fg="white", width=90, selectbackground="blue")
+pl = Listbox(main, bg="#04030F", fg="white", width=90, selectbackground="#FF495C")
 pl.grid(row=1, column=0, pady=10)
 pl.configure(font=("Google Sans",10))
 
@@ -360,43 +361,43 @@ contact_menu.configure(font=("Google Sans",9))
 # Frame for the play/pause buttons
 buttonsframe = Frame(main)
 buttonsframe.grid(row=3, column=0, pady=10)
-buttonsframe.configure(bg="black")
+buttonsframe.configure(bg="#04030F")
 
 # Back Button
 backbuttonImage = PhotoImage(file="pics/back.png")
 backbutton = Button(buttonsframe, image=backbuttonImage, height=64, width=64, borderwidth=0, command=previous_song)
 backbutton.grid(row=0, column=0, padx=10, pady=10)
-backbutton.configure(bg="black")
+backbutton.configure(bg="#04030F")
 
 # Pause Button
 pausebuttonImage = PhotoImage(file="pics/pause.png")
 # We need to know if the song is paused or not and so we require a sort of boolean which is passed through lambda
 pausebutton = Button(buttonsframe, image=pausebuttonImage, height=64, width=64, borderwidth=0, command=lambda: pause_song(isPaused))
 pausebutton.grid(row=0, column=1, padx=10, pady=10)
-pausebutton.configure(bg="black")
+pausebutton.configure(bg="#04030F")
 
 # Play Button
 playbuttonImage = PhotoImage(file="pics/play.png")
 playbutton = Button(buttonsframe, image=playbuttonImage, height=64, width=64, borderwidth=0, command=play_song)
 playbutton.grid(row=0, column=2, padx=10, pady=10)
-playbutton.configure(bg="black")
+playbutton.configure(bg="#04030F")
 
 # Stop Button
 stopbuttonImage = PhotoImage(file="pics/stop.png")
 stopbutton = Button(buttonsframe, image=stopbuttonImage, height=64, width=64, borderwidth=0, command=stop_song)
 stopbutton.grid(row=0, column=3, padx=10, pady=10)
-stopbutton.configure(bg="black")
+stopbutton.configure(bg="#04030F")
 
 # Forward Button
 forwardImage = PhotoImage(file="pics/forward.png")
 forwardbutton = Button(buttonsframe, image=forwardImage, height=64, width=64, borderwidth=0, command=forward_song)
 forwardbutton.grid(row=0, column=4, padx=10, pady=10)
-forwardbutton.configure(bg="black")
+forwardbutton.configure(bg="#04030F")
 
 # Bring the info bar into existence
 info_bar = Label(base, text="", bd=2, relief=RAISED)
 info_bar.pack(fill=X, side=BOTTOM, ipady=2)
-info_bar.configure(bg="black", font=("Google Sans",9))
+info_bar.configure(bg='#04030F', fg='#73EEDC', font=("Google Sans",9))
 
 # Define yt_dl function
 def yt():
@@ -445,26 +446,27 @@ def stop_stream():
 enter_url = Text(main, borderwidth=0)
 enter_url.insert(INSERT, "Enter a video URL supported by youtube_dl in the following box")
 enter_url.insert(INSERT, "\nAnd stream/download it with the respective buttons")
-enter_url.configure(height=2, state='disabled', bg="black")
-enter_url.configure(font=("Google Sans", 10, "normal"))
+enter_url.configure(height=2, state='disabled', bg="#04030F")
+enter_url.configure(font=("Google Sans", 10, "normal"), fg="#0FFF95")
 enter_url.grid(row=4, column=0, pady=3)
 
-link = Text(main, bg="black", fg="red")
+link = Text(main, bg="#04030F", fg="#73EEDC")
 link.configure(height=1)
 link.grid(row=5, column=0, pady=5)
+
 # Frame for YT buttons
 ytframe = Frame(main)
 ytframe.grid(row=6, column=0, pady=5)
-ytframe.configure(bg="black")
-ytdl_button = Button(ytframe, text="Download the video", font=("Google Sans",9), command=vid_dl)
+ytframe.configure(bg="#04030F")
+ytdl_button = Button(ytframe, text="Download the video", font=("Google Sans",9), command=vid_dl, bg="#0FFF95")
 ytdl_button.grid(row=1, column=0, padx=2)
-ytdl_button = Button(ytframe, text="Download video as MP3", font=("Google Sans",9), command=yt_dl)
+ytdl_button = Button(ytframe, text="Download video as MP3", font=("Google Sans",9), command=yt_dl, bg="#0FFF95")
 ytdl_button.grid(row=1, column=1, padx=2)
-ytdl_button = Button(ytframe, text="Stream The above YT link", font=("Google Sans",9), command=stream)
+ytdl_button = Button(ytframe, text="Stream The above YT link", font=("Google Sans",9), command=stream, bg="#0FFF95")
 ytdl_button.grid(row=1, column=2, padx=2)
-ytdl_button = Button(ytframe, text="Pause/Resume the stream", font=("Google Sans",9), command=pause_stream)
+ytdl_button = Button(ytframe, text="Pause/Resume the stream", font=("Google Sans",9), command=pause_stream, bg="#0FFF95")
 ytdl_button.grid(row=1, column=3, padx=2)
-ytdl_button = Button(ytframe, text="Stop the stream", font=("Google Sans",9), command=stop_stream)
+ytdl_button = Button(ytframe, text="Stop the stream", font=("Google Sans",9), command=stop_stream, bg="#0FFF95")
 ytdl_button.grid(row=1, column=4, padx=2)
 
 def show_eq():
@@ -497,7 +499,7 @@ def show_eq():
 		t = threading.Thread(target=k)
 		t.start()
 
-showeq_button = Button(main, text="Show visualizer", font=("Google Sans",9), command=show_eq)
+showeq_button = Button(main, text="Show visualizer", font=("Google Sans",9), command=show_eq, bg="#0FFF95")
 showeq_button.grid(row=7, column=0)
 
 # Set app icon
