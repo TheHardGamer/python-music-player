@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import filedialog as fd
+from tkinter import messagebox
 import tkinter.ttk as ttk
 from ttkthemes import ThemedTk
 from ttkthemes import ThemedStyle
@@ -20,6 +21,7 @@ import threading
 import vlc
 import pyglet
 import ast
+import webbrowser
 
 pyglet.font.add_file('googlesans.ttf')
 
@@ -59,27 +61,10 @@ def about_player():
 	about.after(2000, about.destroy)
 
 def contact_tg():
-	contact = Text(main)
-	contact.insert(INSERT, "https://t.me/TheHardGamer")
-	contact.configure(state='disabled', font=("Google Sans",10))
-	contact.grid(row=4, column=0)
-	contact.after(2000, contact.destroy)
+	webbrowser.open("https://t.me/TheHardGodGamer")
 
 def contact_github():
-	github = Text(main)
-	github.insert(INSERT, "https://github.com/TheHardGamer")
-	github.configure(state='disabled', font=("Google Sans",10))
-	github.grid(row=4, column=0)
-	github.after(2000, github.destroy)
-
-def convertor_help():
-	convertor = Text(main)
-	convertor.insert(INSERT, "Convert the currently selected file in the List to MP3")
-	convertor.insert(INSERT, "\nTap The Convert button under the Convert sub-menu to convert")
-	convertor.insert(INSERT, "\nthe currently selected file in the box to MP3")
-	convertor.configure(state='disabled', font=("Google Sans", 10))
-	convertor.grid(row=4, column=0)
-	convertor.after(5000, convertor.destroy)
+	webbrowser.open("https://github.com/TheHardGamer")
 
 def add_songs():
 	# askopenfilenames returns a tuple of files selected
@@ -294,10 +279,11 @@ def slider(x):
 		song_slider.config(state='disabled')
 
 def convert_song():
-	song = pl.get(ACTIVE)
-	strippedname = os.path.split(song)[1]
-	finalname = os.path.basename(strippedname)
-	AudioSegment.from_file(song).export(finalname + ".mp3", format="mp3", bitrate="192k")
+	filename = fd.askopenfilename(title="Select file to convert to mp3")
+	strippedname = os.path.split(filename)[1]
+	finalname = os.path.splitext(strippedname)[0]
+	AudioSegment.from_file(filename).export(finalname + ".mp3", format="mp3", bitrate="192k")
+	messagebox.showinfo(title="Conversion status", message="Conversion Complete!")
 
 def playlist_save():
 	f = fd.asksaveasfile(mode='w', defaultextension=".txt")
@@ -349,14 +335,14 @@ about_menu.configure(font=("Google Sans",9))
 
 convertor_menu= Menu(top_menu, tearoff=0)
 top_menu.add_cascade(label="MP3 convertor", menu=convertor_menu, font=("Google Sans",9))
-convertor_menu.add_command(label="Help", command=convertor_help)
+#convertor_menu.add_command(label="Help", command=convertor_help)
 convertor_menu.add_command(label="Convert", command=convert_song)
 convertor_menu.configure(font=("Google Sans",9))
 
 contact_menu = Menu(top_menu, tearoff=0)
 top_menu.add_cascade(label="Contact me", menu=contact_menu, font=("Google Sans",9))
-contact_menu.add_command(label="Telegram", command=contact_tg)
 contact_menu.add_command(label="Github", command=contact_github)
+contact_menu.add_command(label="Telegram", command=contact_tg)
 contact_menu.configure(font=("Google Sans",9))
 
 # Frame for the play/pause buttons
@@ -409,7 +395,7 @@ def yt_dl():
 	finallink = yt()
 	ydl_opts = {
 	'format': 'bestaudio/best',
-	'outtmpl': '%(id)s.%(ext)s',
+	'outtmpl': '%(title)s.%(ext)s',
 	'postprocessors': [{
 		'key': 'FFmpegExtractAudio',
 		'preferredcodec': 'mp3',
@@ -417,6 +403,7 @@ def yt_dl():
 		}],
 	}
 	youtube_dl.YoutubeDL(ydl_opts).download([finallink])
+	messagebox.showinfo(title="Youtube to MP3", message="Download Complete!")
 
 def vid_dl():
 	finallink = yt()
