@@ -33,6 +33,7 @@ pygame.mixer.init()
 base.title("TheRagingBeast")
 base.geometry("800x600")
 base.configure(bg="#04030F")
+base.resizable(0,0)
 
 # Create the main skeleton
 main = Frame(base)
