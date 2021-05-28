@@ -22,6 +22,7 @@ import vlc
 import pyglet
 import ast
 import webbrowser
+import saavn
 
 pyglet.font.add_file('googlesans.ttf')
 
@@ -393,17 +394,22 @@ def yt():
 
 def yt_dl():
 	finallink = yt()
-	ydl_opts = {
-	'format': 'bestaudio/best',
-	'outtmpl': '%(title)s.%(ext)s',
-	'postprocessors': [{
-		'key': 'FFmpegExtractAudio',
-		'preferredcodec': 'mp3',
-		'preferredquality': '192',
-		}],
-	}
-	youtube_dl.YoutubeDL(ydl_opts).download([finallink])
-	messagebox.showinfo(title="Youtube to MP3", message="Download Complete!")
+	if "jiosaavn" not in finallink:
+		ydl_opts = {
+		'format': 'bestaudio/best',
+		'outtmpl': '%(title)s.%(ext)s',
+		'postprocessors': [{
+			'key': 'FFmpegExtractAudio',
+			'preferredcodec': 'mp3',
+			'preferredquality': '192',
+			}],
+		}
+		youtube_dl.YoutubeDL(ydl_opts).download([finallink])
+		messagebox.showinfo(title="Youtube to MP3", message="Download Complete!")
+	else:
+		flink = finallink.strip("\n")
+		saavn.jiosaavndl(flink)
+		messagebox.showinfo(title="Jiosaavn to MP3", message="Download Complete!")
 
 def vid_dl():
 	finallink = yt()
@@ -446,15 +452,15 @@ link.grid(row=5, column=0, pady=5)
 ytframe = Frame(main)
 ytframe.grid(row=6, column=0, pady=5)
 ytframe.configure(bg="#04030F")
-ytdl_button = Button(ytframe, text="Download the video", font=("Google Sans",9), command=vid_dl, bg="#0FFF95")
+ytdl_button = Button(ytframe, text="Download the video", font=("Google Sans",9), command=vid_dl, bg="#0FFF95", fg="black")
 ytdl_button.grid(row=1, column=0, padx=2)
-ytdl_button = Button(ytframe, text="Download video as MP3", font=("Google Sans",9), command=yt_dl, bg="#0FFF95")
+ytdl_button = Button(ytframe, text="Download as MP3", font=("Google Sans",9), command=yt_dl, bg="#0FFF95", fg="black")
 ytdl_button.grid(row=1, column=1, padx=2)
-ytdl_button = Button(ytframe, text="Stream The above YT link", font=("Google Sans",9), command=stream, bg="#0FFF95")
+ytdl_button = Button(ytframe, text="Stream The above YT link", font=("Google Sans",9), command=stream, bg="#0FFF95", fg="black")
 ytdl_button.grid(row=1, column=2, padx=2)
-ytdl_button = Button(ytframe, text="Pause/Resume the stream", font=("Google Sans",9), command=pause_stream, bg="#0FFF95")
+ytdl_button = Button(ytframe, text="Pause/Resume the stream", font=("Google Sans",9), command=pause_stream, bg="#0FFF95", fg="black")
 ytdl_button.grid(row=1, column=3, padx=2)
-ytdl_button = Button(ytframe, text="Stop the stream", font=("Google Sans",9), command=stop_stream, bg="#0FFF95")
+ytdl_button = Button(ytframe, text="Stop the stream", font=("Google Sans",9), command=stop_stream, bg="#0FFF95", fg="black")
 ytdl_button.grid(row=1, column=4, padx=2)
 
 def show_eq():
@@ -487,7 +493,7 @@ def show_eq():
 		t = threading.Thread(target=k)
 		t.start()
 
-showeq_button = Button(main, text="Show visualizer", font=("Google Sans",9), command=show_eq, bg="#0FFF95")
+showeq_button = Button(main, text="Show visualizer", font=("Google Sans",9), command=show_eq, bg="#0FFF95", fg="black")
 showeq_button.grid(row=7, column=0)
 
 # Set app icon
