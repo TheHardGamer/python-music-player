@@ -398,11 +398,13 @@ def yt_dl():
 		ydl_opts = {
 		'format': 'bestaudio/best',
 		'outtmpl': '%(title)s.%(ext)s',
+
 		'postprocessors': [{
 			'key': 'FFmpegExtractAudio',
 			'preferredcodec': 'mp3',
 			'preferredquality': '192',
-			}],
+			},
+			{'key': 'FFmpegMetadata'},],
 		}
 		youtube_dl.YoutubeDL(ydl_opts).download([finallink])
 		messagebox.showinfo(title="Youtube to MP3", message="Download Complete!")
