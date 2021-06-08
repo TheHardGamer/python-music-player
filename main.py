@@ -4,10 +4,7 @@ from tkinter import messagebox
 import tkinter.ttk as ttk
 from ttkthemes import ThemedTk
 from ttkthemes import ThemedStyle
-import openal
-from openal import *
 import youtube_dl
-import pygame
 from mutagen.mp3 import MP3
 from mutagen.flac import FLAC
 from pydub import AudioSegment
@@ -23,14 +20,12 @@ import pyglet
 import ast
 import webbrowser
 import saavn
+import os
 
 pyglet.font.add_file('googlesans.ttf')
 
 # Create a tkinter instance
 base = Tk()
-
-# Initialize pygame
-pygame.mixer.init()
 
 # The title and resolution of the app
 base.title("TheRagingBeast")
@@ -79,32 +74,25 @@ def del_song():
 	# ANCHOR is the selected item in the listbox widget
 	pl.delete(ANCHOR)
 
+global player
+player = pyglet.media.Player()
 global curr_play
 # Define play_song function
 def play_song():
 	global isStopped
 	global curr_play
 	isStopped = False
-	global islooping
+	global player
 	song_slider.config(to=0, value=0)
 	info_bar.config(text="0")
 	song = pl.get(ACTIVE)
 	curr_play = song
-	extension = os.path.splitext(song)[1]
-	if (extension == ".mp3"):
-		oalQuit()
-		pygame.mixer.music.stop()
-		pygame.mixer.music.load(song)
-		pygame.mixer.music.play(loops=0)
-	else:
-		oalQuit()
-		pygame.mixer.music.stop()
-		sauce = oalOpen(song)
-		sauce.play()
+	player = pyglet.media.Player()
+	src = pyglet.media.load(pl.get(ACTIVE), streaming=False)
+	player.queue(src)
+	player.play()
 	song_slider.config(to=0, value=0)
 	info_bar.config(text="0")
-	if (islooping):
-		return
 	song_time()
 
 # Define forward_song function
@@ -117,27 +105,16 @@ def forward_song():
 	upcoming_song = current_song[0] + 1
 	song = pl.get(upcoming_song)
 	curr_play = song
-	extension = os.path.splitext(song)[1]
 	pl.selection_clear(current_song[0])
 	pl.activate(upcoming_song)
 	pl.selection_set(upcoming_song)
-	if (islooping):
-		pass
-	else:
-		song_time()
 	if (song > ''):
-		if (extension == ".mp3"):
-			oalQuit()
-			pygame.mixer.music.stop()
-			pygame.mixer.music.load(song)
-			pygame.mixer.music.play(loops=0)
-		else:
-			oalQuit()
-			pygame.mixer.music.stop()
-			sauce = oalOpen(song)
-			sauce.play()
-		song_slider.config(to=0, value=0)
-		info_bar.config(text="0")
+		global player
+		player.delete()
+		src = pyglet.media.load(pl.get(upcoming_song), streaming=False)
+		player.queue(src)
+		player.next_source()
+		song_time()
 	else:
 		stop_song()
 
@@ -150,134 +127,102 @@ def previous_song():
 	previous_song = current_song[0] - 1
 	song = pl.get(previous_song)
 	curr_play = song
-	extension = os.path.splitext(song)[1]
 	pl.selection_clear(current_song[0])
 	pl.activate(previous_song)
 	pl.selection_set(previous_song)
-	if (islooping):
-		pass
-	else:
-		song_time()
-	if (extension == ".mp3"):
-		oalQuit()
-		pygame.mixer.music.stop()
-		pygame.mixer.music.load(song)
-		pygame.mixer.music.play(loops=0)
-	else:
-		oalQuit()
-		pygame.mixer.music.stop()
-		sauce = oalOpen(song)
-		sauce.play()
-	song_slider.config(to=0, value=0)
-	info_bar.config(text="0")
+	global player
+	src = pyglet.media.load(pl.get(previous_song), streaming=False)
+	player.queue(src)
+	player.next_source()
+	song_time()
 
 # Define pause_song function
 global isPaused
 isPaused = False
 def pause_song(is_paused):
 	global isPaused
-	global islooping
+	global player
 	isPaused = is_paused
 	song = pl.get(ACTIVE)
 	if isPaused:
 		isPaused = False
-		pygame.mixer.music.unpause()
+		player.play()
 	else:
-		oalQuit()
-		pygame.mixer.music.pause()
+		player.pause()
 		isPaused = True
-		islooping = False
 
 # Define stop_song function
 global isStopped
 isStopped = False
 def stop_song():
 	global isStopped
-	global islooping
-	oalQuit()
-	pygame.mixer.music.stop()
+	global player
+	player.delete()
 	# Clear the selected song
 	pl.selection_clear(ACTIVE)
 	info_bar.config(text="00:00")
 	song_slider.config(value=0)
 	isStopped = True
-	islooping = False
 
-global islooping
-islooping = False
 def song_time():
-	if (isStopped):
+	if(isStopped):
 		return
-	global islooping
-	islooping = True
 	global curr_play
+	global player
 	# Get currently playing song
 	current_song = curr_play
 	if (str(curr_play) is pl.get(ACTIVE)):
 		return
 	extension = os.path.splitext(current_song)[1]
 	# Get song's current position
-	sec = pygame.mixer.music.get_pos() / 1000
+	sec = player.time
 	# Convert it to MM:SS format
 	formatted_time = time.strftime('%M:%S', time.gmtime(sec))
 	# Invoke mutagen
 	if (extension == ".mp3"):
 		mut = MP3(current_song)
-		# Get the total length of currently playing song
-		length = mut.info.length
-		# Convert it to MM:SS format
-		length_time = time.strftime('%M:%S', time.gmtime(length))
-		final_time = formatted_time + "/" + length_time
-		# Add an if check to avoid the function from recursing when music is "Stopped"
-		if sec >= 0:
-			# Add it as text to info bar
-			info_bar.config(text=final_time)
-		# Compare the sliders position and the length of the song and stop the song if they are equal
-		if song_slider.get() >= int(length):
-			islooping = True
-			current_song = pl.curselection()
-			upcoming_song = current_song[0] + 1
-			song = pl.get(upcoming_song)
-			if(song > ''):
-				forward_song()
-			else:
-				pass
-		elif isPaused:
-			pass
-		else:
-			# Move slider along every 1 second
-			song_slider.config(to=length)
-			next_time = song_slider.get()+1
-			song_slider.config(value=next_time)
-			if(song_slider.get() > length):
-				song_slider.config(value=length)
-			total_length = length_time
-			# Format the time of slider's position
-			slider_time = time.strftime('%M:%S', time.gmtime(int(song_slider.get()))) + "/" + length_time
-			info_bar.config(text=slider_time)
 	else:
-		# TEMP Disable stuff while playing flac for now
 		mut = FLAC(current_song)
-		length = mut.info.length
-		length_time = time.strftime('%M:%S', time.gmtime(length))
-		info_bar.config(text=length_time)
-	islooping = True
+	# Get the total length of currently playing song
+	length = mut.info.length
+	# Convert it to MM:SS format
+	length_time = time.strftime('%M:%S', time.gmtime(length))
+	final_time = formatted_time + "/" + length_time
+	# Add an if check to avoid the function from recursing when music is "Stopped"
+	if sec >= 0:
+		# Add it as text to info bar
+		info_bar.config(text=final_time)
+	# Compare the sliders position and the length of the song and stop the song if they are equal
+	if song_slider.get() > int(length):
+		current_song = pl.curselection()
+		upcoming_song = current_song[0] + 1
+		song = pl.get(upcoming_song)
+		if(song > ''):
+			forward_song()
+		else:
+			stop_song()
+			return
+	elif isPaused:
+		pass
+	else:
+		# Move slider along every 1 second
+		song_slider.config(to=length)
+		song_slider.config(value=sec)
+		if(song_slider.get() > length):
+			song_slider.config(value=length)
+		total_length = length_time
+		# Format the time of slider's position
+		slider_time = time.strftime('%M:%S', time.gmtime(int(song_slider.get()))) + "/" + length_time
+		info_bar.config(text=slider_time)
 	info_bar.after(1000, song_time)
 	return
 
 def slider(x):
-	# Check if the music is stopped and stop updating
-	if (isStopped):
+	if(isStopped):
 		return
-	# Do nothing if the music being played isnt mp3[WIP]
-	song = pl.get(ACTIVE)
-	extension = os.path.splitext(song)[1]
-	if (extension == ".mp3"):
-		pygame.mixer.music.load(song)
-		pygame.mixer.music.play(loops=0, start=song_slider.get())
-	else:
-		# [TEMP] Disable the slider
-		song_slider.config(state='disabled')
+	global player
+	player.seek(song_slider.get())
+	player.play()
 
 def convert_song():
 	filename = fd.askopenfilename(title="Select file to convert to mp3")
@@ -303,7 +248,7 @@ def playlist_import():
 			pl.insert(END, song)
 
 # playlist box
-pl = Listbox(main, bg="#04030F", fg="white", width=90, selectbackground="#FF495C")
+pl = Listbox(main, bg="#04030F", fg="white", width=90, selectbackground="#FF495C", relief=GROOVE)
 pl.grid(row=1, column=0, pady=10)
 pl.configure(font=("Google Sans",10))
 
@@ -417,27 +362,27 @@ def vid_dl():
 	finallink = yt()
 	youtube_dl.YoutubeDL.download([finallink])
 
-global player
+global vidplayer
 def stream():
-	global player
+	global vidplayer
 	finallink = yt()
 	video = pafy.new(finallink)
 	best = video.getbest()
 	playurl = best.url
 	Instance = vlc.Instance()
-	player = Instance.media_player_new()
+	vidplayer = Instance.media_player_new()
 	Media = Instance.media_new(playurl)
 	Media.get_mrl()
-	player.set_media(Media)
-	player.play()
+	vidplayer.set_media(Media)
+	vidplayer.play()
 
 def pause_stream():
-	global player
-	player.pause()
+	global vidplayer
+	vidplayer.pause()
 
 def stop_stream():
-	global player
-	player.stop()
+	global vidplayer
+	vidplayer.stop()
 
 enter_url = Text(main, borderwidth=0)
 enter_url.insert(INSERT, "Enter a video URL supported by youtube_dl in the following box")
