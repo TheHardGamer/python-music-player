@@ -65,7 +65,7 @@
       <x>40</x>
       <y>340</y>
       <width>721</width>
-      <height>61</height>
+      <height>81</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0">
@@ -124,6 +124,15 @@
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
       <widget class="QSlider" name="songslider">
+       <property name="cursor">
+        <cursorShape>ArrowCursor</cursorShape>
+       </property>
+       <property name="mouseTracking">
+        <bool>true</bool>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
+       </property>
        <property name="maximum">
         <number>1000000000</number>
        </property>
@@ -135,20 +144,13 @@
        </property>
       </widget>
      </item>
-     <item alignment="Qt::AlignHCenter">
-      <widget class="QLabel" name="infolabel">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
     </layout>
    </widget>
    <widget class="QLabel" name="loadinganim">
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>240</y>
+      <x>290</x>
+      <y>450</y>
       <width>151</width>
       <height>61</height>
      </rect>
@@ -182,6 +184,97 @@
      <enum>Qt::MoveAction</enum>
     </property>
    </widget>
+   <widget class="QWidget" name="verticalLayoutWidget_3">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>530</y>
+      <width>801</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <item alignment="Qt::AlignHCenter">
+      <widget class="QLabel" name="infolabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>500</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>83</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QLabel" name="nowplaying">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>480</y>
+      <width>561</width>
+      <height>39</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QDial" name="voldial">
+    <property name="geometry">
+     <rect>
+      <x>650</x>
+      <y>450</y>
+      <width>141</width>
+      <height>89</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>100</number>
+    </property>
+    <property name="value">
+     <number>100</number>
+    </property>
+    <property name="wrapping">
+     <bool>false</bool>
+    </property>
+    <property name="notchesVisible">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="videobut">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>430</y>
+      <width>221</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>VideoPlayer</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -196,7 +289,15 @@
     <property name="title">
      <string>Songs</string>
     </property>
+    <widget class="QMenu" name="menuCreate_Playlist">
+     <property name="title">
+      <string>Create Playlist</string>
+     </property>
+     <addaction name="plcurrentadded"/>
+    </widget>
     <addaction name="addsongs"/>
+    <addaction name="menuCreate_Playlist"/>
+    <addaction name="clearpl"/>
    </widget>
    <widget class="QMenu" name="menuThemes">
     <property name="title">
@@ -218,15 +319,14 @@
     <property name="title">
      <string>Downloaders</string>
     </property>
-    <addaction name="actionYouTube"/>
-    <addaction name="actionJioSaavn_Singles"/>
+    <addaction name="ytdl"/>
+    <addaction name="jiosavn"/>
    </widget>
    <addaction name="menuSongs"/>
    <addaction name="menuThemes"/>
    <addaction name="menuConvertor"/>
    <addaction name="menuDownloaders"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <action name="addsongs">
    <property name="checkable">
     <bool>true</bool>
@@ -275,14 +375,24 @@
     <string>Convert Music</string>
    </property>
   </action>
-  <action name="actionYouTube">
+  <action name="ytdl">
    <property name="text">
     <string>YouTube</string>
    </property>
   </action>
-  <action name="actionJioSaavn_Singles">
+  <action name="jiosavn">
    <property name="text">
     <string>JioSaavn[Singles]</string>
+   </property>
+  </action>
+  <action name="clearpl">
+   <property name="text">
+    <string>Clear Playlist</string>
+   </property>
+  </action>
+  <action name="plcurrentadded">
+   <property name="text">
+    <string>Songs Currently added</string>
    </property>
   </action>
  </widget>
