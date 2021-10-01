@@ -4,6 +4,7 @@ from pyDes import *
 import base64
 from pydub import AudioSegment
 import os
+import shutil
 
 url = "https://www.jiosaavn.com/api.php?__call=song.getDetails&cc=in&_marker=0%3F_marker%3D0&_format=json&pids="
 albumurl = "https://www.jiosaavn.com/api.php?__call=content.getAlbumDetails&_format=json&cc=in&_marker=0%3F_marker%3D0&albumid="
@@ -28,15 +29,20 @@ def jiosaavndl(inpurl):
 			dec_url = dec_url.replace("_96.mp4", "_320.mp4")
 			filename = jsondata['song'] + ".m4a"
 			song = requests.get(dec_url, allow_redirects=True, timeout=5)
-			open(filename, 'wb').write(song.content)
+			shutil.rmtree(jsondata['song'])
+			os.mkdir(jsondata['song'])
+			foldername = jsondata['song'] + '/' + filename
+			open(foldername, 'wb').write(song.content)
 			finalname = os.path.splitext(filename)[0]
-			AudioSegment.from_file(filename).export(finalname + ".mp3", format="mp3", bitrate="320k")
+			AudioSegment.from_file(foldername).export(jsondata['song'] + '/' + finalname + ".mp3", format="mp3", bitrate="320k")
 		else:	
 			res = requests.get(inpurl)
 			album_id = res.text.split('"album_id":"')[1].split('"')[0]
 			response = requests.get(albumurl+album_id)
 			songs_json = response.text.encode().decode('unicode-escape')
 			songs_json = json.loads(songs_json)
+			shutil.rmtree(songs_json['name'])
+			os.mkdir(songs_json['name'])
 			for song in songs_json['songs']:
 				song['media_url'] = song['encrypted_media_url']
 				song['song'] = format(song['song'])
@@ -46,7 +52,7 @@ def jiosaavndl(inpurl):
 				dec_url = dec_url.replace("_96.mp4", "_320.mp4")
 				filename = song['song'] + ".m4a"
 				song = requests.get(dec_url, allow_redirects=True, timeout=5)
-				open(filename, 'wb').write(song.content)
+				open(songs_json['name'] + '/' + filename, 'wb').write(song.content)
 				finalname = os.path.splitext(filename)[0]
-				AudioSegment.from_file(filename).export(finalname + ".mp3", format="mp3", bitrate="320k")
-				return
+				AudioSegment.from_file(songs_json['name'] + '/' + filename).export(songs_json['name'] + '/' + finalname + ".mp3", format="mp3", bitrate="320k")
+				os.remove(songs_json['name'] + '/' + filename)
