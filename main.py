@@ -214,7 +214,7 @@ def song_time():
 		# Format the time of slider's position
 		slider_time = time.strftime('%M:%S', time.gmtime(int(song_slider.get()))) + "/" + length_time
 		info_bar.config(text=slider_time)
-	info_bar.after(1000, song_time)
+	info_bar.after(100, song_time)
 	return
 
 def slider(x):
@@ -263,6 +263,7 @@ pl.configure(font=("Google Sans",10))
 # Song slider widget
 style = ttk.Style()
 style.theme_use('equilux')
+style.configure('Horizontal.TScale', background='black',)
 song_slider = ttk.Scale(main, from_=0, orient=HORIZONTAL, length=500, command=slider)
 song_slider.grid(row=2, column=0, pady=10)
 
@@ -351,6 +352,7 @@ def yt_dl():
 		ydl_opts = {
 		'format': 'bestaudio/best',
 		'outtmpl': '%(title)s.%(ext)s',
+		'skip_download': 'True',
 
 		'postprocessors': [{
 			'key': 'FFmpegExtractAudio',
