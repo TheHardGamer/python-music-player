@@ -31,7 +31,6 @@ def jiosaavndl(inpurl):
 			open(filename, 'wb').write(song.content)
 			finalname = os.path.splitext(filename)[0]
 			AudioSegment.from_file(filename).export(finalname + ".mp3", format="mp3", bitrate="320k")
-			return
 		else:	
 			res = requests.get(inpurl)
 			album_id = res.text.split('"album_id":"')[1].split('"')[0]
@@ -46,7 +45,6 @@ def jiosaavndl(inpurl):
 				dec_url = des_cipher.decrypt(enc_url, padmode=PAD_PKCS5).decode('utf-8')
 				dec_url = dec_url.replace("_96.mp4", "_320.mp4")
 				filename = song['song'] + ".m4a"
-				print(dec_url)
 				song = requests.get(dec_url, allow_redirects=True, timeout=5)
 				open(filename, 'wb').write(song.content)
 				finalname = os.path.splitext(filename)[0]
