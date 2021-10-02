@@ -1,359 +1,339 @@
-from tkinter import *
-from tkinter import filedialog as fd
-from tkinter import messagebox
-import tkinter.ttk as ttk
-from ttkthemes import ThemedTk
-from ttkthemes import ThemedStyle
-import youtube_dl
-from mutagen.mp3 import MP3
-from mutagen.flac import FLAC
-from pydub import AudioSegment
-import time
-import pafy
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtWidgets import QApplication
-from qtwidgets import EqualizerBar
-import random
-import threading
-import vlc
-import pyglet
-import ast
-import webbrowser
-import saavn
+from PyQt5.QtWidgets import *
+from PyQt5 import uic
+import sys
 import os
+from pydub import AudioSegment
+from PyQt5.QtMultimedia import *
+from PyQt5.QtMultimediaWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from qt_material import apply_stylesheet, QtStyleTools
+import youtube_dl
+import sqlite3
 
-pyglet.font.add_file('googlesans.ttf')
+class Stream(QObject):
+	newText = pyqtSignal(str)
 
-# Create a tkinter instance
-base = Tk()
+	def write(self, text):
+		self.newText.emit(str(text))
 
-# The title and resolution of the app
-base.title("TheRagingBeast")
-base.geometry("800x600")
-base.configure(bg="#04030F")
-base.resizable(0,0)
-
-# Create the main skeleton
-main = Frame(base)
-main.pack(pady=10)
-main.configure(bg="#04030F")
-theme = ThemedStyle(main)
-
-# I hav arriv
-canvas = Canvas(main, width=500, height=66)
-canvas.grid(row=0, column=0)
-img = PhotoImage(file="pics/logo.png")
-canvas.create_image(250,36, image=img)
-canvas.configure(bg="#04030F", highlightthickness=0)
-
-# Define about_player function
-def about_player():
-	about = Text(main)
-	about.insert(INSERT, "A music player written in python by TheHardGamer")
-	# Make the text widget read only
-	about.configure(state='disabled', font=("Google Sans",10))
-	about.grid(row=4, column=0)
-	# Destroy the widget
-	about.after(2000, about.destroy)
-
-def contact_tg():
-	webbrowser.open("https://t.me/TheHardGodGamer")
-
-def contact_github():
-	webbrowser.open("https://github.com/TheHardGamer")
-
-def add_songs():
-	# askopenfilenames returns a tuple of files selected
-	songs = fd.askopenfilenames(title="Select songs")
-	# Iterate the tuple
-	for song in songs:
-			pl.insert(END, song)
-
-# Define del_song function
-def del_song():
-	# ANCHOR is the selected item in the listbox widget
-	pl.delete(ANCHOR)
-
-global player
-player = pyglet.media.Player()
-global curr_play
-# Define play_song function
-def play_song():
-	global isStopped
-	global curr_play
-	isStopped = False
-	global player
-	song_slider.config(to=0, value=0)
-	info_bar.config(text="0")
-	song = pl.get(ACTIVE)
-	curr_play = song
-	player = pyglet.media.Player()
-	src = pyglet.media.load(pl.get(ACTIVE), streaming=False)
-	player.queue(src)
-	player.play()
-	song_slider.config(to=0, value=0)
-	info_bar.config(text="0")
-	song_time()
-
-# Define forward_song function
-def forward_song():
-	song_slider.config(to=0, value=0)
-	global isStopped
-	global curr_play
-	isStopped = False
-	current_song = pl.curselection()
-	upcoming_song = current_song[0] + 1
-	song = pl.get(upcoming_song)
-	curr_play = song
-	pl.selection_clear(current_song[0])
-	pl.activate(upcoming_song)
-	pl.selection_set(upcoming_song)
-	if (song > ''):
-		global player
-		player.delete()
-		src = pyglet.media.load(pl.get(upcoming_song), streaming=False)
-		player.queue(src)
-		player.next_source()
-		song_time()
-	else:
-		stop_song()
-
-# Define previous_song function
-def previous_song():
-	global isStopped
-	isStopped = False
-	global curr_play
-	current_song = pl.curselection()
-	previous_song = current_song[0] - 1
-	song = pl.get(previous_song)
-	curr_play = song
-	pl.selection_clear(current_song[0])
-	pl.activate(previous_song)
-	pl.selection_set(previous_song)
-	global player
-	src = pyglet.media.load(pl.get(previous_song), streaming=False)
-	player.queue(src)
-	player.next_source()
-	song_time()
-
-# Define pause_song function
-global isPaused
-isPaused = False
-def pause_song(is_paused):
-	global isPaused
-	global player
-	isPaused = is_paused
-	song = pl.get(ACTIVE)
-	if isPaused:
-		isPaused = False
-		player.play()
-	else:
-		player.pause()
-		isPaused = True
-
-# Define stop_song function
-global isStopped
-isStopped = False
-def stop_song():
-	global isStopped
-	global player
-	player.delete()
-	# Clear the selected song
-	pl.selection_clear(ACTIVE)
-	info_bar.config(text="00:00")
-	song_slider.config(value=0)
-	isStopped = True
-
-def song_time():
-	if(isStopped):
-		return
-	global curr_play
-	global player
-	# Get currently playing song
-	current_song = curr_play
-	if (str(curr_play) is pl.get(ACTIVE)):
-		return
-	extension = os.path.splitext(current_song)[1]
-	# Get song's current position
-	sec = player.time
-	# Convert it to MM:SS format
-	formatted_time = time.strftime('%M:%S', time.gmtime(sec))
-	# Invoke mutagen
-	if (extension == ".mp3"):
-		mut = MP3(current_song)
-	else:
-		mut = FLAC(current_song)
-	# Get the total length of currently playing song
-	length = mut.info.length
-	# Convert it to MM:SS format
-	length_time = time.strftime('%M:%S', time.gmtime(length))
-	final_time = formatted_time + "/" + length_time
-	# Add an if check to avoid the function from recursing when music is "Stopped"
-	if sec >= 0:
-		# Add it as text to info bar
-		info_bar.config(text=final_time)
-	# Compare the sliders position and the length of the song and stop the song if they are equal
-	if song_slider.get() > int(length):
-		current_song = pl.curselection()
-		upcoming_song = current_song[0] + 1
-		song = pl.get(upcoming_song)
-		if(song > ''):
-			forward_song()
-		else:
-			stop_song()
-			return
-	elif isPaused:
+	def flush(self):
 		pass
-	else:
-		# Move slider along every 1 second
-		song_slider.config(to=length)
-		song_slider.config(value=sec)
-		if(song_slider.get() > length):
-			song_slider.config(value=length)
-		total_length = length_time
-		# Format the time of slider's position
-		slider_time = time.strftime('%M:%S', time.gmtime(int(song_slider.get()))) + "/" + length_time
-		info_bar.config(text=slider_time)
-	info_bar.after(100, song_time)
-	return
 
-def slider(x):
-	if(isStopped):
-		return
-	global player
-	player.seek(song_slider.get())
-	player.play()
+class VideoplayerWindow(QMainWindow):
+	state = pyqtSignal(bool)
 
-def convert_song_thread():
-	filename = fd.askopenfilename(title="Select file to convert to mp3")
-	strippedname = os.path.split(filename)[1]
-	finalname = os.path.splitext(strippedname)[0]
-	infobox = Text(main)
-	infobox.insert(INSERT, "Converting...")
-	infobox.grid(row=4, column=0)
-	AudioSegment.from_file(filename).export(finalname + ".mp3", format="mp3", bitrate="192k")
-	infobox.grid_remove()
-	messagebox.showinfo(title="Conversion status", message="Conversion Complete!")
+class YtdownloadWindow(QMainWindow):
+	dloadfinished = pyqtSignal(bool)
 
-def convert_song():
-	cs_thread = threading.Thread(target=convert_song_thread)
-	cs_thread.start()
+class SaavnDownloadWindow(QMainWindow):
+	dloadfinished = pyqtSignal(bool)
 
-def playlist_save():
-	f = fd.asksaveasfile(mode='w', defaultextension=".txt")
-	if f is None:
-		return
-	text2save = str(pl.get(0, END))
-	f.write(text2save)
-	f.close()
+# Thread for music convertor
+class ConvertorThread(QThread):
+	signal = pyqtSignal()
 
-def playlist_import():
-	file = fd.askopenfile(mode ='r', filetypes =[('Text', '*.txt')])
-	if file is not None:
-		content = file.read()
-		data_list = ast.literal_eval(content)
-		for song in data_list:
-			pl.insert(END, song)
+	def __init__(self):
+		QThread.__init__(self)
+		self.song = ""
+		self.finalname = ""
+		self.strippedname = ""
 
-# playlist box
-pl = Listbox(main, bg="#04030F", fg="white", width=90, selectbackground="#FF495C", relief=GROOVE)
-pl.grid(row=1, column=0, pady=10)
-pl.configure(font=("Google Sans",10))
+	def run(self):
+		AudioSegment.from_file(self.song).export(self.finalname + ".mp3", format="mp3", bitrate="320k")
+		self.signal.emit()
 
-# Song slider widget
-style = ttk.Style()
-style.theme_use('equilux')
-style.configure('Horizontal.TScale', background='black',)
-song_slider = ttk.Scale(main, from_=0, orient=HORIZONTAL, length=500, command=slider)
-song_slider.grid(row=2, column=0, pady=10)
+# Thread for ytdl
+class ytdlThread(QThread):
+	signal = pyqtSignal()
 
-# Create a menu skeleton
-top_menu = Menu(base)
-base.config(menu=top_menu)
+	def __init__(self):
+		QThread.__init__(self)
+		self.url = ""
+		self.ydl_opts = {}
 
-# Add an entry to the menu skeleton, define tearoff to disable the ability to detach menus from main window
-songs_menu = Menu(top_menu, tearoff=0)
-# Add a sub-menu named "Add songs" under the menu skeleton and add an empty sub-menu under it
-top_menu.add_cascade(label="Songs", menu=songs_menu, font=("Google Sans",9))
-# Populate the empty sub-menu
-songs_menu.add_command(label="Add Songs", command=add_songs)
-songs_menu.add_command(label="Delete selected song", command=del_song)
-songs_menu.add_command(label="Create a playlist of currently added songs", command=playlist_save)
-songs_menu.add_command(label="Import a playlist", command=playlist_import)
-songs_menu.configure(font=("Google Sans",9))
+	def run(self):
+		youtube_dl.YoutubeDL(self.ydl_opts).download([self.url])
+		self.signal.emit()
 
-# Add a sub-menu under the menu skeleton
-about_menu = Menu(top_menu, tearoff=0)
-top_menu.add_cascade(label="About", menu=about_menu, font=("Google Sans",9))
-about_menu.add_command(label="The player", command=about_player)
-about_menu.configure(font=("Google Sans",9))
+class PList(QAbstractListModel):
+	def __init__(self, playlist, *args, **kwargs):
+		super(PList, self).__init__(*args, **kwargs)
+		self.playlist = playlist
 
-convertor_menu= Menu(top_menu, tearoff=0)
-top_menu.add_cascade(label="MP3 convertor", menu=convertor_menu, font=("Google Sans",9))
-#convertor_menu.add_command(label="Help", command=convertor_help)
-convertor_menu.add_command(label="Convert", command=convert_song)
-convertor_menu.configure(font=("Google Sans",9))
+	def data(self, index, role):
+		if role == Qt.DisplayRole:
+			media = self.playlist.media(index.row())
+			return media.canonicalUrl().fileName()
 
-contact_menu = Menu(top_menu, tearoff=0)
-top_menu.add_cascade(label="Contact me", menu=contact_menu, font=("Google Sans",9))
-contact_menu.add_command(label="Github", command=contact_github)
-contact_menu.add_command(label="Telegram", command=contact_tg)
-contact_menu.configure(font=("Google Sans",9))
+	def rowCount(self, index):
+		return self.playlist.mediaCount()
 
-# Frame for the play/pause buttons
-buttonsframe = Frame(main)
-buttonsframe.grid(row=3, column=0, pady=10)
-buttonsframe.configure(bg="#04030F")
+class TRB(QMainWindow, QtStyleTools):
+	def __init__(self):
+		super().__init__()
+		self.ui = uic.loadUi('trb.ui', self)
+		self.setWindowTitle("TheRagingBeast")
+		self.setFixedSize(800, 600)
+		self.setWindowIcon(QIcon('pics/icon.png'))
+		QFontDatabase.addApplicationFont('googlesans.ttf')
+		self.player = QMediaPlayer(self)
+		self.playlist = QMediaPlaylist()
+		self.player.setPlaylist(self.playlist)
+		self.addsongs.triggered.connect(self.getsongs)
+		self.plcurrentadded.triggered.connect(self.plcurradded)
+		self.importpl.triggered.connect(self.importplaylist)
+		self.playbutton.clicked.connect(self.playsongs)
+		self.nextbutton.clicked.connect(self.playlist.next)
+		self.prevbutton.clicked.connect(self.playlist.previous)
+		self.pausebutton.clicked.connect(self.player.pause)
+		self.stopbutton.clicked.connect(self.player.stop)
+		self.viewer = VideoplayerWindow(self)
+		self.viewer.setWindowFlags(self.viewer.windowFlags() | Qt.WindowStaysOnTopHint)
+		self.viewer.setMinimumSize(QSize(720,360))
+		videoWidget = QVideoWidget()
+		self.viewer.setCentralWidget(videoWidget)
+		self.player.setVideoOutput(videoWidget)
+		self.ytdlwin = YtdownloadWindow(self)
+		self.ytui = uic.loadUi('ytdl.ui', self.ytdlwin)
+		self.ytdlwin.dlvid.clicked.connect(self.downloadvid)
+		self.ytdlwin.dlaud.clicked.connect(self.downloadaud)
+		self.songslider.sliderReleased.connect(self.seeksong)
+		self.clearpl.triggered.connect(self.clearplaylist)
+		self.voldial.valueChanged.connect(self.setvol)
+		self.model = PList(self.playlist)
+		self.songslist.setModel(self.model)
+		self.playlist.currentIndexChanged.connect(self.plistposchange)
+		selection_model = self.songslist.selectionModel()
+		selection_model.selectionChanged.connect(self.plistselchange)
+		self.cthread = ConvertorThread()
+		self.cthread.signal.connect(self.cthreadend)
+		self.ytdlwin.ytthread = ytdlThread()
+		self.ytdlwin.ytthread.signal.connect(self.ytthreadend)
+		self.ytdl.triggered.connect(self.openytwindow)
+		self.player.positionChanged.connect(self.slidermove)
+		self.player.durationChanged.connect(self.slidermax)
+		self.convertsong.triggered.connect(self.sconvert)
+		self.player.mediaStatusChanged.connect(self.vidplayer)
+		self.videobut.setHidden(True)
+		self.videobut.clicked.connect(self.showvideo)
+		self.playlist.currentMediaChanged.connect(self.nplaying)
+		self.loadinganim.setHidden(True)
+		#sys.stdout = Stream(newText=self.showmsg)
+		self.loopone.triggered.connect(self.looperone)
+		self.loopall.triggered.connect(self.looperall)
+		self.looper = QActionGroup(self)
+		self.looper.addAction(self.loopone)
+		self.looper.addAction(self.loopall)
+		self.looper.setExclusive(True)
+		self.conn = sqlite3.connect('TRB.sqlite3')
+		self.curr = self.conn.cursor()
+		try:
+			self.curr.executescript(''' CREATE TABLE Data (Theme   varchar, Loop varchar); ''')
+			self.curr.execute('''INSERT INTO Data (Theme) VALUES ('dark_lightgreen')''')
+			self.conn.commit()
+		except:
+			pass
+		try:
+			self.curr.execute('SELECT Theme FROM Data')
+			currtheme = self.curr.fetchall()
+			for i in currtheme:
+				if (i[0] == "dark_blue"):
+					apply_stylesheet(self.ui, theme='dark_blue.xml', extra={'font_family': 'Google Sans', })
+				elif (i[0] == "dark_amber"):
+					apply_stylesheet(self.ui, theme='dark_amber.xml', extra={'font_family': 'Google Sans', })
+				elif (i[0] == "dark_lightgreen"):
+					apply_stylesheet(self.ui, theme='dark_lightgreen.xml', extra={'font_family': 'Google Sans', })
+				elif (i[0] == "dark_red"):
+					apply_stylesheet(self.ui, theme='dark_red.xml', extra={'font_family': 'Google Sans', })
+				elif (i[0] == "dark_yellow"):
+					apply_stylesheet(self.ui, theme='dark_yellow.xml', extra={'font_family': 'Google Sans', })
+		except:
+			pass
+		self.themes()
+		self.ui.show()
 
-# Back Button
-backbuttonImage = PhotoImage(file="pics/back.png")
-backbutton = Button(buttonsframe, image=backbuttonImage, height=64, width=64, borderwidth=0, command=previous_song)
-backbutton.grid(row=0, column=0, padx=10, pady=10)
-backbutton.configure(bg="#04030F")
+	def looperone(self):
+		self.curr.execute(''' INSERT INTO Data (Loop) VALUES ('one') ''')
+		self.playlist.setPlaybackMode(1)
+		self.loopone.setChecked(True)
 
-# Pause Button
-pausebuttonImage = PhotoImage(file="pics/pause.png")
-# We need to know if the song is paused or not and so we require a sort of boolean which is passed through lambda
-pausebutton = Button(buttonsframe, image=pausebuttonImage, height=64, width=64, borderwidth=0, command=lambda: pause_song(isPaused))
-pausebutton.grid(row=0, column=1, padx=10, pady=10)
-pausebutton.configure(bg="#04030F")
+	def looperall(self):
+		print("jjjjjjjjjjjjj")
 
-# Play Button
-playbuttonImage = PhotoImage(file="pics/play.png")
-playbutton = Button(buttonsframe, image=playbuttonImage, height=64, width=64, borderwidth=0, command=play_song)
-playbutton.grid(row=0, column=2, padx=10, pady=10)
-playbutton.configure(bg="#04030F")
+	def themes(self):
+		self.defaulttheme.triggered.connect(lambda: self.apply_stylesheet(self.ui, 'dark_lightgreen.xml', extra={'font_family': 'Google Sans', }))
+		self.defaulttheme.triggered.connect(lambda: self.updatedbtheme("dark_lightgreen"))
+		self.darkblue.triggered.connect(lambda: self.apply_stylesheet(self.ui, 'dark_blue.xml', extra={'font_family': 'Google Sans', }))
+		self.darkblue.triggered.connect(lambda: self.updatedbtheme("dark_blue"))
+		self.darkamber.triggered.connect(lambda: self.apply_stylesheet(self.ui, 'dark_amber.xml', extra={'font_family': 'Google Sans', }))
+		self.darkamber.triggered.connect(lambda: self.updatedbtheme("dark_amber"))
+		self.darkred.triggered.connect(lambda: self.apply_stylesheet(self.ui, 'dark_red.xml', extra={'font_family': 'Google Sans', }))
+		self.darkred.triggered.connect(lambda: self.updatedbtheme("dark_red"))
+		self.darkyellow.triggered.connect(lambda: self.apply_stylesheet(self.ui, 'dark_yellow.xml', extra={'font_family': 'Google Sans', }))
+		self.darkyellow.triggered.connect(lambda: self.updatedbtheme("dark_yellow"))
 
-# Stop Button
-stopbuttonImage = PhotoImage(file="pics/stop.png")
-stopbutton = Button(buttonsframe, image=stopbuttonImage, height=64, width=64, borderwidth=0, command=stop_song)
-stopbutton.grid(row=0, column=3, padx=10, pady=10)
-stopbutton.configure(bg="#04030F")
+	def updatedbtheme(self, color):
+		self.color = color
+		self.curr.execute('''DELETE FROM Data''')
+		self.curr.execute('''INSERT INTO Data (Theme) VALUES (?)''', (self.color,))
+		self.conn.commit()
 
-# Forward Button
-forwardImage = PhotoImage(file="pics/forward.png")
-forwardbutton = Button(buttonsframe, image=forwardImage, height=64, width=64, borderwidth=0, command=forward_song)
-forwardbutton.grid(row=0, column=4, padx=10, pady=10)
-forwardbutton.configure(bg="#04030F")
+	def getsongs(self):
+		options = QFileDialog.Options()
+		options |= QFileDialog.DontUseNativeDialog
+		songs = QFileDialog.getOpenFileNames(self,"Add songs", "","", options=options)[0]
+		for song in songs:
+			self.playlist.addMedia(QMediaContent(QUrl.fromLocalFile(song)))
+		self.model.layoutChanged.emit()
 
-# Bring the info bar into existence
-info_bar = Label(base, text="", bd=2, relief=RAISED)
-info_bar.pack(fill=X, side=BOTTOM, ipady=2)
-info_bar.configure(bg='#04030F', fg='#73EEDC', font=("Google Sans",9))
+	def plcurradded(self):
+		total = self.playlist.mediaCount()
+		curre = []
+		if len(curre) > 0:
+			curre.clear()
+		if total > 0:
+			plname, done = QInputDialog.getText(self, "Playlist Name", "Enter Playlist Name")
+			if done:
+				if not os.path.exists("databases"):
+					os.makedirs("databases", exist_ok=True)
+				if os.path.exists("databases/{}.sqlite3".format(plname)):
+					warn = QMessageBox.critical(self, "Playlist Exists!", "A playlist with the same name exists, do you want to merge it with current songs?",
+						QMessageBox.Yes | QMessageBox.Cancel )
+					if warn == QMessageBox.Yes:
+						pass
+					else:
+						return
+				con = sqlite3.connect('databases/{}.sqlite3'.format(plname))
+				curr = con.cursor()
+				try:
+					curr.executescript(''' CREATE TABLE {} (Songs varchar); '''.format(plname))
+				except:
+					pass
+				for i in range((0), total):
+					media = self.playlist.media(i)
+					filename = media.canonicalUrl().toLocalFile()
+					curre.append(filename)
+				for i in curre:
+					curr.execute(''' INSERT INTO {} (Songs) VALUES (?) '''.format(plname), (i,))
+				con.commit()
+				QMessageBox.about(self.ytdlwin, "Playlist Import.", "Playlist has been created, refrain from changing file names in databases directory.")
 
-# Define yt_dl function
-def yt():
-	finallink = link.get("1.0","end")
-	return finallink
+	def importplaylist(self):
+		options = QFileDialog.Options()
+		options |= QFileDialog.DontUseNativeDialog
+		db = QFileDialog.getOpenFileName(self,"Select a playlist", "databases","Database Files (*.sqlite3)", options=options)[0]
+		dbname = os.path.split(db)[1]
+		tablename = os.path.splitext(dbname)[0]
+		files = []
+		if len(files) > 0:
+			files.clear()
+		try:
+			con = sqlite3.connect(db)
+			curr = con.cursor()
+			curr.execute(''' SELECT * FROM {} '''.format(tablename))
+			playl = curr.fetchall()
+			for i in playl:
+				files.append(i[0])
+			for song in files:
+				self.playlist.addMedia(QMediaContent(QUrl.fromLocalFile(song)))
+				self.model.layoutChanged.emit()
+		except:
+			QMessageBox.critical(self, "Import Failed!", "It looks like the table name and database file name mismatched.")
 
-def yt_dl():
-	finallink = yt()
-	if "jiosaavn" not in finallink:
-		ydl_opts = {
+	global i
+	def plistselchange(self, ix):
+		global i
+		i = ix.indexes()[0].row()
+
+	global ix
+	def plistposchange(self, i):
+		global ix
+		if i > -1:
+			ix = self.model.index(i)
+			self.songslist.setCurrentIndex(ix)
+
+	def sconvert(self):
+		self.cthread.song = QFileDialog.getOpenFileName(self, "Convert a Song to MP3s", "","")[0]
+		self.cthread.strippedname = os.path.split(self.cthread.song)[1]
+		self.cthread.finalname = os.path.splitext(self.cthread.strippedname)[0]
+		self.loading = QMovie("loading.gif", QByteArray(), self)
+		self.loadinganim.setHidden(False)
+		self.loadinganim.setMovie(self.loading)
+		self.loading.start()
+		self.cthread.start()
+
+	def cthreadend(self):
+		self.loading.stop()
+		self.loadinganim.setHidden(True)
+		QMessageBox.about(self, "Convertor", "Conversion Complete!")
+
+	def playsongs(self):
+		global i
+		global ix
+		if self.playlist.isEmpty() == False:
+			self.player.play()
+			self.playlist.setCurrentIndex(i)
+			self.songslist.setCurrentIndex(ix)
+
+	def vidplayer(self, status):
+		if status == 6:
+			if self.player.isVideoAvailable():
+				self.videobut.setHidden(False)
+			else:
+				self.videobut.setHidden(True)
+
+	def showvideo(self):
+		self.viewer.show()
+
+	def formattime(self, dur):
+		hour, r = divmod(dur, 3600000)
+		minute, r = divmod(r, 60000)
+		second, _ = divmod(r, 1000)
+		return ("%d:%02d:%02d" % (hour,minute,second)) if hour else ("%d:%02d" % (minute,second))
+
+	def slidermove(self, position):
+		self.songslider.setValue(position)
+		self.infolabel.setText("{now} / {total}".format(now=self.formattime(position), total=self.formattime(self.player.duration())))
+ 
+	def slidermax(self, duration):
+		self.songslider.setRange(0, duration)
+
+	def seeksong(self):
+		self.songslider.setFocus()
+		if self.player.state() == QMediaPlayer.PlayingState:
+			seek = self.songslider.value()
+			self.player.setPosition(seek)
+
+	def clearplaylist(self):
+		selection_model = self.songslist.selectionModel()
+		self.player.stop()
+		self.playlist.clear()
+		selection_model.clear()
+
+	def setvol(self):
+		self.player.setVolume(self.voldial.value())
+
+	def nplaying(self, media):
+		if not media.isNull():
+			url = media.canonicalUrl()
+			self.nowplaying.setText("Now Playing:\n {}".format(url.fileName()))
+			self.nowplaying.adjustSize()
+
+	def openytwindow(self):
+		self.ytdlwin.show()
+
+	def downloadvid(self):
+		self.ytdlwin.ytthread.url = self.ytdlwin.yturl.toPlainText()
+		self.ytdlwin.ytthread.ydl_opts ={'format': 'bestvideo+bestaudio','outtmpl': '%(title)s.%(ext)s'}		
+		self.ytdlwin.ytthread.start()
+		self.ytdlwin.yturl.clear()
+
+	def downloadaud(self):
+		self.ytdlwin.ytthread.url = self.ytdlwin.yturl.toPlainText()
+		self.ytdlwin.ytthread.ydl_opts ={
 		'format': 'bestaudio/best',
 		'outtmpl': '%(title)s.%(ext)s',
-		'skip_download': 'True',
-
 		'postprocessors': [{
 			'key': 'FFmpegExtractAudio',
 			'preferredcodec': 'mp3',
@@ -361,100 +341,23 @@ def yt_dl():
 			},
 			{'key': 'FFmpegMetadata'},],
 		}
-		youtube_dl.YoutubeDL(ydl_opts).download([finallink])
-		messagebox.showinfo(title="Youtube to MP3", message="Download Complete!")
-	else:
-		flink = finallink.strip("\n")
-		saavn.jiosaavndl(flink)
-		messagebox.showinfo(title="Jiosaavn to MP3", message="Download Complete!")
+		self.ytdlwin.ytthread.start()	
+		self.ytdlwin.yturl.clear()
 
-def vid_dl():
-	finallink = yt()
-	youtube_dl.YoutubeDL.download([finallink])
+	def showmsg(self, text):
+		if not self.ytdlwin.yturl.visibleRegion().isEmpty():
+			self.ytdlwin.cursor = self.ytdlwin.yturl.textCursor()
+			self.ytdlwin.cursor.movePosition(QTextCursor.End)
+			self.ytdlwin.cursor.insertText(text)
+			self.ytdlwin.yturl.setTextCursor(self.ytdlwin.cursor)
+			self.ytdlwin.yturl.ensureCursorVisible()
 
-global vidplayer
-def stream():
-	global vidplayer
-	finallink = yt()
-	video = pafy.new(finallink)
-	best = video.getbest()
-	playurl = best.url
-	Instance = vlc.Instance()
-	vidplayer = Instance.media_player_new()
-	Media = Instance.media_new(playurl)
-	Media.get_mrl()
-	vidplayer.set_media(Media)
-	vidplayer.play()
+	def ytthreadend(self):
+		QMessageBox.about(self.ytdlwin, "Downloader", "Download Complete!")
+		self.ytdlwin.yturl.clear()
 
-def pause_stream():
-	global vidplayer
-	vidplayer.pause()
 
-def stop_stream():
-	global vidplayer
-	vidplayer.stop()
-
-enter_url = Text(main, borderwidth=0)
-enter_url.insert(INSERT, "Enter a video URL supported by youtube_dl in the following box")
-enter_url.insert(INSERT, "\nAnd stream/download it with the respective buttons")
-enter_url.configure(height=2, state='disabled', bg="#04030F")
-enter_url.configure(font=("Google Sans", 10, "normal"), fg="#0FFF95")
-enter_url.grid(row=4, column=0, pady=3)
-
-link = Text(main, bg="#04030F", fg="#73EEDC")
-link.configure(height=1)
-link.grid(row=5, column=0, pady=5)
-
-# Frame for YT buttons
-ytframe = Frame(main)
-ytframe.grid(row=6, column=0, pady=5)
-ytframe.configure(bg="#04030F")
-ytdl_button = Button(ytframe, text="Download the video", font=("Google Sans",9), command=vid_dl, bg="#0FFF95", fg="black")
-ytdl_button.grid(row=1, column=0, padx=2)
-ytdl_button = Button(ytframe, text="Download as MP3", font=("Google Sans",9), command=yt_dl, bg="#0FFF95", fg="black")
-ytdl_button.grid(row=1, column=1, padx=2)
-ytdl_button = Button(ytframe, text="Stream The above YT link", font=("Google Sans",9), command=stream, bg="#0FFF95", fg="black")
-ytdl_button.grid(row=1, column=2, padx=2)
-ytdl_button = Button(ytframe, text="Pause/Resume the stream", font=("Google Sans",9), command=pause_stream, bg="#0FFF95", fg="black")
-ytdl_button.grid(row=1, column=3, padx=2)
-ytdl_button = Button(ytframe, text="Stop the stream", font=("Google Sans",9), command=stop_stream, bg="#0FFF95", fg="black")
-ytdl_button.grid(row=1, column=4, padx=2)
-
-def show_eq():
-	if(song_slider.get() > 1):
-		class Window(QtWidgets.QMainWindow):
-
-			def __init__(self):
-				super().__init__()
-
-				self.equalizer = EqualizerBar(5, ['#0C0786', '#40039C', '#6A00A7', '#8F0DA3', '#B02A8F', '#CA4678', '#E06461',
-											   '#F1824C', '#FCA635', '#FCCC25', '#EFF821'])
-
-				self.setCentralWidget(self.equalizer)
-
-				self._timer = QtCore.QTimer()
-				self._timer.setInterval(100)
-				self._timer.timeout.connect(self.update_values)
-				self._timer.start()
-
-			def update_values(self):
-				self.equalizer.setValues([
-					min(100, v+random.randint(0, 50) if random.randint(0, 5) > 2 else v)
-					for v in self.equalizer.values()
-					])
-
-		app = QApplication(sys.argv)
-		w = Window()
-		w.show()
-		k = app.exec_(sys.argv)
-		t = threading.Thread(target=k)
-		t.start()
-
-showeq_button = Button(main, text="Show visualizer", font=("Google Sans",9), command=show_eq, bg="#0FFF95", fg="black")
-showeq_button.grid(row=7, column=0)
-
-# Set app icon
-icon = PhotoImage(file="pics/icon.png")
-base.iconphoto(True, icon)
-
-base.mainloop()
+app = QApplication(sys.argv)
+window = TRB()
+app.setStyle('QtCurve')
+sys.exit(app.exec_())

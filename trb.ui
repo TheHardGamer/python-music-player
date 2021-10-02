@@ -297,6 +297,7 @@
     </widget>
     <addaction name="addsongs"/>
     <addaction name="menuCreate_Playlist"/>
+    <addaction name="importpl"/>
     <addaction name="clearpl"/>
    </widget>
    <widget class="QMenu" name="menuThemes">
@@ -322,10 +323,18 @@
     <addaction name="ytdl"/>
     <addaction name="jiosavn"/>
    </widget>
+   <widget class="QMenu" name="menuLoop">
+    <property name="title">
+     <string>Loop</string>
+    </property>
+    <addaction name="loopone"/>
+    <addaction name="loopall"/>
+   </widget>
    <addaction name="menuSongs"/>
    <addaction name="menuThemes"/>
    <addaction name="menuConvertor"/>
    <addaction name="menuDownloaders"/>
+   <addaction name="menuLoop"/>
   </widget>
   <action name="addsongs">
    <property name="checkable">
@@ -393,6 +402,33 @@
   <action name="plcurrentadded">
    <property name="text">
     <string>Songs Currently added</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="importpl">
+   <property name="text">
+    <string>Import Playlist</string>
+   </property>
+  </action>
+  <action name="loopone">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>One</string>
+   </property>
+  </action>
+  <action name="loopall">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>All</string>
    </property>
   </action>
  </widget>
