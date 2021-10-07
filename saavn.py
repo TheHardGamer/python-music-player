@@ -29,19 +29,22 @@ def jiosaavndl(inpurl):
 			dec_url = dec_url.replace("_96.mp4", "_320.mp4")
 			filename = jsondata['song'] + ".m4a"
 			song = requests.get(dec_url, allow_redirects=True, timeout=5)
-			shutil.rmtree(jsondata['song'])
+			if(os.path.exists(jsondata['song'])):
+				shutil.rmtree(jsondata['song'])
 			os.mkdir(jsondata['song'])
 			foldername = jsondata['song'] + '/' + filename
 			open(foldername, 'wb').write(song.content)
 			finalname = os.path.splitext(filename)[0]
 			AudioSegment.from_file(foldername).export(jsondata['song'] + '/' + finalname + ".mp3", format="mp3", bitrate="320k")
+			os.remove(jsondata['song'] + '/' + filename)
 		else:	
 			res = requests.get(inpurl)
 			album_id = res.text.split('"album_id":"')[1].split('"')[0]
 			response = requests.get(albumurl+album_id)
 			songs_json = response.text.encode().decode('unicode-escape')
 			songs_json = json.loads(songs_json)
-			shutil.rmtree(songs_json['name'])
+			if(os.path.exists(songs_json['name'])):
+				shutil.rmtree(songs_json['name'])
 			os.mkdir(songs_json['name'])
 			for song in songs_json['songs']:
 				song['media_url'] = song['encrypted_media_url']
