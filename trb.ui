@@ -47,7 +47,7 @@
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap>pics/logo.png</pixmap>
+        <pixmap>assets/logo.png</pixmap>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -329,12 +329,20 @@
     </property>
     <addaction name="loopone"/>
     <addaction name="loopall"/>
+    <addaction name="looprandom"/>
+   </widget>
+   <widget class="QMenu" name="menuVisualizer">
+    <property name="title">
+     <string>Equalizer</string>
+    </property>
+    <addaction name="showEq"/>
    </widget>
    <addaction name="menuSongs"/>
    <addaction name="menuThemes"/>
    <addaction name="menuConvertor"/>
    <addaction name="menuDownloaders"/>
    <addaction name="menuLoop"/>
+   <addaction name="menuVisualizer"/>
   </widget>
   <action name="addsongs">
    <property name="checkable">
@@ -342,7 +350,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>pics/folder.png</normaloff>pics/folder.png</iconset>
+     <normaloff>assets/folder.png</normaloff>assets/folder.png</iconset>
    </property>
    <property name="text">
     <string>Add Songs</string>
@@ -391,7 +399,7 @@
   </action>
   <action name="jiosavn">
    <property name="text">
-    <string>JioSaavn[Singles]</string>
+    <string>JioSaavn</string>
    </property>
   </action>
   <action name="clearpl">
@@ -429,6 +437,19 @@
    </property>
    <property name="text">
     <string>All</string>
+   </property>
+  </action>
+  <action name="looprandom">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Random</string>
+   </property>
+  </action>
+  <action name="showEq">
+   <property name="text">
+    <string>Show</string>
    </property>
   </action>
  </widget>
