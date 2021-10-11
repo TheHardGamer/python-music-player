@@ -8,8 +8,11 @@ from PyQt5.QtMultimediaWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from qt_material import apply_stylesheet, QtStyleTools
+from qtwidgets import EqualizerBar
 import youtube_dl
 import sqlite3
+from saavn import jiosaavndl
+import random
 
 class Stream(QObject):
 	newText = pyqtSignal(str)
@@ -26,7 +29,7 @@ class VideoplayerWindow(QMainWindow):
 class YtdownloadWindow(QMainWindow):
 	dloadfinished = pyqtSignal(bool)
 
-class SaavnDownloadWindow(QMainWindow):
+class SavnDownloadWindow(QMainWindow):
 	dloadfinished = pyqtSignal(bool)
 
 # Thread for music convertor
@@ -56,6 +59,20 @@ class ytdlThread(QThread):
 		youtube_dl.YoutubeDL(self.ydl_opts).download([self.url])
 		self.signal.emit()
 
+class jsThread(QThread):
+	signal = pyqtSignal()
+
+	def __init__(self):
+		QThread.__init__(self)
+		self.url = ""
+
+	def run(self):
+		jiosaavndl(self.url)
+		self.signal.emit()
+
+class eqWindow(QMainWindow):
+	eq = pyqtSignal()
+
 class PList(QAbstractListModel):
 	def __init__(self, playlist, *args, **kwargs):
 		super(PList, self).__init__(*args, **kwargs)
@@ -75,7 +92,7 @@ class TRB(QMainWindow, QtStyleTools):
 		self.ui = uic.loadUi('trb.ui', self)
 		self.setWindowTitle("TheRagingBeast")
 		self.setFixedSize(800, 600)
-		self.setWindowIcon(QIcon('pics/icon.png'))
+		self.setWindowIcon(QIcon('assets/icon.png'))
 		QFontDatabase.addApplicationFont('googlesans.ttf')
 		self.player = QMediaPlayer(self)
 		self.playlist = QMediaPlaylist()
@@ -96,8 +113,21 @@ class TRB(QMainWindow, QtStyleTools):
 		self.player.setVideoOutput(videoWidget)
 		self.ytdlwin = YtdownloadWindow(self)
 		self.ytui = uic.loadUi('ytdl.ui', self.ytdlwin)
+		self.ytdlwin.setWindowTitle("YT Downloader")
 		self.ytdlwin.dlvid.clicked.connect(self.downloadvid)
 		self.ytdlwin.dlaud.clicked.connect(self.downloadaud)
+		self.eqwin = eqWindow(self)
+		self.eqwin.setWindowTitle("Equalizer Bar")
+		self.eqwidget = EqualizerBar(5, ['#009EFA', '#FF6F91', '#6A00A7', '#8F0DA3', '#B02A8F', '#CA4678', '#E06461',
+			'#F1824C', '#FCA635', '#FCCC25', '#EFF821'])
+		self.eqwin.setCentralWidget(self.eqwidget)
+		self.jswin = SavnDownloadWindow(self)
+		self.jsui = uic.loadUi('js.ui', self.jswin)
+		self.jswin.setWindowTitle("Saavn Downloader")
+		self.jswin.jsth = jsThread()
+		self.jswin.jsth.signal.connect(self.jsthreadend)
+		self.jswin.dload.clicked.connect(self.dloadjs)
+		self.jiosavn.triggered.connect(self.openjswin)
 		self.songslider.sliderReleased.connect(self.seeksong)
 		self.clearpl.triggered.connect(self.clearplaylist)
 		self.voldial.valueChanged.connect(self.setvol)
@@ -106,6 +136,7 @@ class TRB(QMainWindow, QtStyleTools):
 		self.playlist.currentIndexChanged.connect(self.plistposchange)
 		selection_model = self.songslist.selectionModel()
 		selection_model.selectionChanged.connect(self.plistselchange)
+		self.loading = QMovie("loading.gif", QByteArray(), self)
 		self.cthread = ConvertorThread()
 		self.cthread.signal.connect(self.cthreadend)
 		self.ytdlwin.ytthread = ytdlThread()
@@ -119,15 +150,19 @@ class TRB(QMainWindow, QtStyleTools):
 		self.videobut.clicked.connect(self.showvideo)
 		self.playlist.currentMediaChanged.connect(self.nplaying)
 		self.loadinganim.setHidden(True)
-		#sys.stdout = Stream(newText=self.showmsg)
+		sys.stdout = Stream(newText=self.showmsg)
+		self.looperall()
 		self.loopone.triggered.connect(self.looperone)
 		self.loopall.triggered.connect(self.looperall)
+		self.looprandom.triggered.connect(self.lr)
 		self.looper = QActionGroup(self)
 		self.looper.addAction(self.loopone)
 		self.looper.addAction(self.loopall)
+		self.looper.addAction(self.looprandom)
 		self.looper.setExclusive(True)
 		self.conn = sqlite3.connect('TRB.sqlite3')
 		self.curr = self.conn.cursor()
+		self.showEq.triggered.connect(self.showeq)
 		try:
 			self.curr.executescript(''' CREATE TABLE Data (Theme   varchar, Loop varchar); ''')
 			self.curr.execute('''INSERT INTO Data (Theme) VALUES ('dark_lightgreen')''')
@@ -154,12 +189,16 @@ class TRB(QMainWindow, QtStyleTools):
 		self.ui.show()
 
 	def looperone(self):
-		self.curr.execute(''' INSERT INTO Data (Loop) VALUES ('one') ''')
 		self.playlist.setPlaybackMode(1)
 		self.loopone.setChecked(True)
 
 	def looperall(self):
-		print("jjjjjjjjjjjjj")
+		self.playlist.setPlaybackMode(3)
+		self.loopall.setChecked(True)
+
+	def lr(self):
+		self.playlist.setPlaybackMode(4)
+		self.looprandom.setChecked(True)
 
 	def themes(self):
 		self.defaulttheme.triggered.connect(lambda: self.apply_stylesheet(self.ui, 'dark_lightgreen.xml', extra={'font_family': 'Google Sans', }))
@@ -179,6 +218,19 @@ class TRB(QMainWindow, QtStyleTools):
 		self.curr.execute('''INSERT INTO Data (Theme) VALUES (?)''', (self.color,))
 		self.conn.commit()
 
+	def showeq(self):
+		if self.player.state() == QMediaPlayer.PlayingState:	
+			self.eqwin.show()
+			self.eqwin._timer = QTimer()
+			self.eqwin._timer.setInterval(100)
+			self.eqwin._timer.timeout.connect(self.update_values)
+			self.eqwin._timer.start()
+
+	def update_values(self):
+		self.eqwidget.setValues([
+			min(100, v+random.randint(0, 50) if random.randint(0, 5) > 2 else v)
+			for v in self.eqwidget.values()])
+
 	def getsongs(self):
 		options = QFileDialog.Options()
 		options |= QFileDialog.DontUseNativeDialog
@@ -195,16 +247,16 @@ class TRB(QMainWindow, QtStyleTools):
 		if total > 0:
 			plname, done = QInputDialog.getText(self, "Playlist Name", "Enter Playlist Name")
 			if done:
-				if not os.path.exists("databases"):
-					os.makedirs("databases", exist_ok=True)
-				if os.path.exists("databases/{}.sqlite3".format(plname)):
+				if not os.path.exists("playlists"):
+					os.makedirs("playlists", exist_ok=True)
+				if os.path.exists("playlists/{}.sqlite3".format(plname)):
 					warn = QMessageBox.critical(self, "Playlist Exists!", "A playlist with the same name exists, do you want to merge it with current songs?",
 						QMessageBox.Yes | QMessageBox.Cancel )
 					if warn == QMessageBox.Yes:
 						pass
 					else:
 						return
-				con = sqlite3.connect('databases/{}.sqlite3'.format(plname))
+				con = sqlite3.connect('playlists/{}.sqlite3'.format(plname))
 				curr = con.cursor()
 				try:
 					curr.executescript(''' CREATE TABLE {} (Songs varchar); '''.format(plname))
@@ -217,12 +269,12 @@ class TRB(QMainWindow, QtStyleTools):
 				for i in curre:
 					curr.execute(''' INSERT INTO {} (Songs) VALUES (?) '''.format(plname), (i,))
 				con.commit()
-				QMessageBox.about(self.ytdlwin, "Playlist Import.", "Playlist has been created, refrain from changing file names in databases directory.")
+				QMessageBox.about(self.ytdlwin, "Playlist Import.", "Playlist has been created, refrain from changing file names in playlists directory.")
 
 	def importplaylist(self):
 		options = QFileDialog.Options()
 		options |= QFileDialog.DontUseNativeDialog
-		db = QFileDialog.getOpenFileName(self,"Select a playlist", "databases","Database Files (*.sqlite3)", options=options)[0]
+		db = QFileDialog.getOpenFileName(self,"Select a playlist", "playlists","Database Files (*.sqlite3)", options=options)[0]
 		dbname = os.path.split(db)[1]
 		tablename = os.path.splitext(dbname)[0]
 		files = []
@@ -254,10 +306,9 @@ class TRB(QMainWindow, QtStyleTools):
 			self.songslist.setCurrentIndex(ix)
 
 	def sconvert(self):
-		self.cthread.song = QFileDialog.getOpenFileName(self, "Convert a Song to MP3s", "","")[0]
+		self.cthread.song = QFileDialog.getOpenFileName(self, "Convert a Song to MP3", "","")[0]
 		self.cthread.strippedname = os.path.split(self.cthread.song)[1]
 		self.cthread.finalname = os.path.splitext(self.cthread.strippedname)[0]
-		self.loading = QMovie("loading.gif", QByteArray(), self)
 		self.loadinganim.setHidden(False)
 		self.loadinganim.setMovie(self.loading)
 		self.loading.start()
@@ -323,6 +374,21 @@ class TRB(QMainWindow, QtStyleTools):
 	def openytwindow(self):
 		self.ytdlwin.show()
 
+	def openjswin(self):
+		self.jswin.show()
+
+	def dloadjs(self):
+		self.jswin.jsth.url = self.jswin.jsurl.toPlainText()
+		self.jswin.jsth.start()
+		self.loadinganim.setHidden(False)
+		self.loadinganim.setMovie(self.loading)
+		self.loading.start()
+
+	def jsthreadend(self):
+		self.loading.stop()
+		self.loadinganim.setHidden(True)
+		QMessageBox.about(self.jswin, "Downloader", "Download Complete!")
+
 	def downloadvid(self):
 		self.ytdlwin.ytthread.url = self.ytdlwin.yturl.toPlainText()
 		self.ytdlwin.ytthread.ydl_opts ={'format': 'bestvideo+bestaudio','outtmpl': '%(title)s.%(ext)s'}		
@@ -361,3 +427,6 @@ app = QApplication(sys.argv)
 window = TRB()
 app.setStyle('QtCurve')
 sys.exit(app.exec_())
+
+__author__ = 'Varun Vaishnav'
+__email__ = 'gamelovr695@gmail.com'
