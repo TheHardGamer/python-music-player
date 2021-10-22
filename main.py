@@ -294,7 +294,8 @@ class TRB(QMainWindow, QtStyleTools):
 			QMessageBox.critical(self, "Import Failed!", "It looks like the table name and database file name mismatched.")
 
 	global i
-	def plistselchange(self, ix):
+	@staticmethod
+	def plistselchange(ix):
 		global i
 		i = ix.indexes()[0].row()
 
@@ -337,7 +338,8 @@ class TRB(QMainWindow, QtStyleTools):
 	def showvideo(self):
 		self.viewer.show()
 
-	def formattime(self, dur):
+	@staticmethod
+	def formattime(dur):
 		hour, r = divmod(dur, 3600000)
 		minute, r = divmod(r, 60000)
 		second, _ = divmod(r, 1000)
