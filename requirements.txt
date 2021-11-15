@@ -10,7 +10,7 @@ chardet==4.0.0
     # via requests
 idna==2.10
     # via requests
-jinja2==3.0.2
+jinja2==3.0.3
     # via qt-material
 markupsafe==2.0.1
     # via jinja2
