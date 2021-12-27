@@ -24,7 +24,7 @@ pyqt5-qt5==5.15.2
     # via pyqt5
 pyqt5-sip==12.9.0
     # via pyqt5
-qt_material==2.8.8
+qt_material==2.8.17
     # via -r requirements.in
 qtwidgets==0.18
     # via -r requirements.in
