@@ -30,7 +30,7 @@ qtwidgets==0.18
     # via -r requirements.in
 requests==2.27.1
     # via -r requirements.in
-urllib3==1.26.7
+urllib3==1.26.8
     # via requests
 youtube_dl==2021.6.6
     # via -r requirements.in
