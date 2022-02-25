@@ -24,13 +24,13 @@ pyqt5-qt5==5.15.2
     # via pyqt5
 pyqt5-sip==12.9.0
     # via pyqt5
-qt_material==2.8.19
+qt_material==2.10
     # via -r requirements.in
 qtwidgets==0.18
     # via -r requirements.in
 requests==2.27.1
     # via -r requirements.in
-urllib3==1.26.7
+urllib3==1.26.8
     # via requests
-youtube_dl==2021.6.6
+youtube_dl==2021.12.17
     # via -r requirements.in
