@@ -12,7 +12,7 @@ idna==2.10
     # via requests
 jinja2==3.0.2
     # via qt-material
-markupsafe==2.0.1
+markupsafe==2.1.0
     # via jinja2
 pydes==2.0.1
     # via -r requirements.in
@@ -30,7 +30,7 @@ qtwidgets==0.18
     # via -r requirements.in
 requests==2.27.1
     # via -r requirements.in
-urllib3==1.26.7
+urllib3==1.26.8
     # via requests
-youtube_dl==2021.6.6
+youtube_dl==2021.12.17
     # via -r requirements.in
