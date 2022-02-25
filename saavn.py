@@ -10,7 +10,7 @@ url = "https://www.jiosaavn.com/api.php?__call=song.getDetails&cc=in&_marker=0%3
 albumurl = "https://www.jiosaavn.com/api.php?__call=content.getAlbumDetails&_format=json&cc=in&_marker=0%3F_marker%3D0&albumid="
 
 def format(string):
-    return string.encode().decode('unicode-escape').replace("&quot;","'").replace("&amp;", "&").replace("&#039;", "'")
+	return string.encode().decode('unicode-escape').replace("&quot;","'").replace("&amp;", "&").replace("&#039;", "'")
 
 def jiosaavndl(inpurl):
 	if(inpurl > ''):

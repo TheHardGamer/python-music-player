@@ -8,11 +8,9 @@ from PyQt5.QtMultimediaWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from qt_material import apply_stylesheet, QtStyleTools
-from qtwidgets import EqualizerBar
 import youtube_dl
 import sqlite3
 from saavn import jiosaavndl
-import random
 
 class Stream(QObject):
 	newText = pyqtSignal(str)
@@ -70,9 +68,6 @@ class jsThread(QThread):
 		jiosaavndl(self.url)
 		self.signal.emit()
 
-class eqWindow(QMainWindow):
-	eq = pyqtSignal()
-
 class PList(QAbstractListModel):
 	def __init__(self, playlist, *args, **kwargs):
 		super(PList, self).__init__(*args, **kwargs)
@@ -116,11 +111,6 @@ class TRB(QMainWindow, QtStyleTools):
 		self.ytdlwin.setWindowTitle("YT Downloader")
 		self.ytdlwin.dlvid.clicked.connect(self.downloadvid)
 		self.ytdlwin.dlaud.clicked.connect(self.downloadaud)
-		self.eqwin = eqWindow(self)
-		self.eqwin.setWindowTitle("Equalizer Bar")
-		self.eqwidget = EqualizerBar(5, ['#009EFA', '#FF6F91', '#6A00A7', '#8F0DA3', '#B02A8F', '#CA4678', '#E06461',
-			'#F1824C', '#FCA635', '#FCCC25', '#EFF821'])
-		self.eqwin.setCentralWidget(self.eqwidget)
 		self.jswin = SavnDownloadWindow(self)
 		self.jsui = uic.loadUi('js.ui', self.jswin)
 		self.jswin.setWindowTitle("Saavn Downloader")
@@ -162,7 +152,6 @@ class TRB(QMainWindow, QtStyleTools):
 		self.looper.setExclusive(True)
 		self.conn = sqlite3.connect('TRB.sqlite3')
 		self.curr = self.conn.cursor()
-		self.showEq.triggered.connect(self.showeq)
 		try:
 			self.curr.executescript(''' CREATE TABLE Data (Theme   varchar, Loop varchar); ''')
 			self.curr.execute('''INSERT INTO Data (Theme) VALUES ('dark_lightgreen')''')
@@ -217,19 +206,6 @@ class TRB(QMainWindow, QtStyleTools):
 		self.curr.execute('''DELETE FROM Data''')
 		self.curr.execute('''INSERT INTO Data (Theme) VALUES (?)''', (self.color,))
 		self.conn.commit()
-
-	def showeq(self):
-		if self.player.state() == QMediaPlayer.PlayingState:	
-			self.eqwin.show()
-			self.eqwin._timer = QTimer()
-			self.eqwin._timer.setInterval(100)
-			self.eqwin._timer.timeout.connect(self.update_values)
-			self.eqwin._timer.start()
-
-	def update_values(self):
-		self.eqwidget.setValues([
-			min(100, v+random.randint(0, 50) if random.randint(0, 5) > 2 else v)
-			for v in self.eqwidget.values()])
 
 	def getsongs(self):
 		options = QFileDialog.Options()
@@ -323,7 +299,7 @@ class TRB(QMainWindow, QtStyleTools):
 	def playsongs(self):
 		global i
 		global ix
-		if self.playlist.isEmpty() == False:
+		if self.playlist.isEmpty() is False:
 			self.player.play()
 			self.playlist.setCurrentIndex(i)
 			self.songslist.setCurrentIndex(ix)
@@ -348,7 +324,7 @@ class TRB(QMainWindow, QtStyleTools):
 	def slidermove(self, position):
 		self.songslider.setValue(position)
 		self.infolabel.setText("{now} / {total}".format(now=self.formattime(position), total=self.formattime(self.player.duration())))
- 
+		
 	def slidermax(self, duration):
 		self.songslider.setRange(0, duration)
 
@@ -405,7 +381,7 @@ class TRB(QMainWindow, QtStyleTools):
 		'postprocessors': [{
 			'key': 'FFmpegExtractAudio',
 			'preferredcodec': 'mp3',
-			'preferredquality': '192',
+			'preferredquality': '320',
 			},
 			{'key': 'FFmpegMetadata'},],
 		}

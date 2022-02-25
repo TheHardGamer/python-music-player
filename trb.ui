@@ -331,18 +331,11 @@
     <addaction name="loopall"/>
     <addaction name="looprandom"/>
    </widget>
-   <widget class="QMenu" name="menuVisualizer">
-    <property name="title">
-     <string>Equalizer</string>
-    </property>
-    <addaction name="showEq"/>
-   </widget>
    <addaction name="menuSongs"/>
    <addaction name="menuThemes"/>
    <addaction name="menuConvertor"/>
    <addaction name="menuDownloaders"/>
    <addaction name="menuLoop"/>
-   <addaction name="menuVisualizer"/>
   </widget>
   <action name="addsongs">
    <property name="checkable">
