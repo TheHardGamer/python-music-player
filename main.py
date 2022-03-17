@@ -324,7 +324,7 @@ class TRB(QMainWindow, QtStyleTools):
 	def slidermove(self, position):
 		self.songslider.setValue(position)
 		self.infolabel.setText("{now} / {total}".format(now=self.formattime(position), total=self.formattime(self.player.duration())))
-		
+
 	def slidermax(self, duration):
 		self.songslider.setRange(0, duration)
 
