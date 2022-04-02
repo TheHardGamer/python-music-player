@@ -1,12 +1,12 @@
 from PyQt5.QtWidgets import *
 from PyQt5 import uic
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtMultimedia import *
+from PyQt5.QtMultimediaWidgets import *
 import sys
 import os
 from pydub import AudioSegment
-from PyQt5.QtMultimedia import *
-from PyQt5.QtMultimediaWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
 from qt_material import apply_stylesheet, QtStyleTools
 import youtube_dl
 import sqlite3
