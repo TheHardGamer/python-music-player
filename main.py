@@ -54,7 +54,7 @@ class ytdlThread(QThread):
 		self.ydl_opts = {}
 
 	def run(self):
-		youtube_dl.YoutubeDL(self.ydl_opts).download([self.url])
+		#youtube_dl.YoutubeDL(self.ydl_opts).download([self.url])
 		self.signal.emit()
 
 class jsThread(QThread):
