@@ -18,7 +18,7 @@ pydes==2.0.1
     # via -r requirements.in
 pydub==0.25.1
     # via -r requirements.in
-pyqt5==5.15.6
+pyqt5==5.15.7
     # via -r requirements.in
 pyqt5-qt5==5.15.2
     # via pyqt5
