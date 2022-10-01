@@ -8,10 +8,11 @@ import sys
 import os
 from pydub import AudioSegment
 from qt_material import apply_stylesheet, QtStyleTools
-import youtube_dl
+from yt_dlp import YoutubeDL
 import sqlite3
 from saavn import jiosaavndl
 
+# Stream class to redirect I/O logs for ytdl downloads
 class Stream(QObject):
 	newText = pyqtSignal(str)
 
@@ -21,12 +22,15 @@ class Stream(QObject):
 	def flush(self):
 		pass
 
+# Class for video player window
 class VideoplayerWindow(QMainWindow):
 	state = pyqtSignal(bool)
 
+# Class for Youtube Downloader window
 class YtdownloadWindow(QMainWindow):
 	dloadfinished = pyqtSignal(bool)
 
+# Class for Saavn Downloader window
 class SavnDownloadWindow(QMainWindow):
 	dloadfinished = pyqtSignal(bool)
 
@@ -54,9 +58,12 @@ class ytdlThread(QThread):
 		self.ydl_opts = {}
 
 	def run(self):
+		with YoutubeDL() as ydl:
+			ydl.download(self.url)
 		#youtube_dl.YoutubeDL(self.ydl_opts).download([self.url])
 		self.signal.emit()
 
+# Thread for saavn downloader
 class jsThread(QThread):
 	signal = pyqtSignal()
 
@@ -68,6 +75,7 @@ class jsThread(QThread):
 		jiosaavndl(self.url)
 		self.signal.emit()
 
+# Class for playlist view, inherits QAbstractListModel class
 class PList(QAbstractListModel):
 	def __init__(self, playlist, *args, **kwargs):
 		super(PList, self).__init__(*args, **kwargs)
@@ -81,9 +89,12 @@ class PList(QAbstractListModel):
 	def rowCount(self, index):
 		return self.playlist.mediaCount()
 
+# Main class
 class TRB(QMainWindow, QtStyleTools):
 	def __init__(self):
 		super().__init__()
+		# Load ui, all of it is done here in init instead of separate fns to avoid
+		# fn call overhead
 		self.ui = uic.loadUi('trb.ui', self)
 		self.setWindowTitle("TheRagingBeast")
 		self.setFixedSize(800, 600)
@@ -92,6 +103,7 @@ class TRB(QMainWindow, QtStyleTools):
 		self.player = QMediaPlayer(self)
 		self.playlist = QMediaPlaylist()
 		self.player.setPlaylist(self.playlist)
+		# Link UI elements with functions
 		self.addsongs.triggered.connect(self.getsongs)
 		self.plcurrentadded.triggered.connect(self.plcurradded)
 		self.importpl.triggered.connect(self.importplaylist)
@@ -100,6 +112,7 @@ class TRB(QMainWindow, QtStyleTools):
 		self.prevbutton.clicked.connect(self.playlist.previous)
 		self.pausebutton.clicked.connect(self.player.pause)
 		self.stopbutton.clicked.connect(self.player.stop)
+		# Init remaining windows
 		self.viewer = VideoplayerWindow(self)
 		self.viewer.setWindowFlags(self.viewer.windowFlags() | Qt.WindowStaysOnTopHint)
 		self.viewer.setMinimumSize(QSize(720,360))
