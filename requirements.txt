@@ -32,5 +32,4 @@ requests==2.28.0
     # via -r requirements.in
 urllib3==1.26.9
     # via requests
-youtube_dl==2021.12.17
-    # via -r requirements.in
+yt-dlp
