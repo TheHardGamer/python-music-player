@@ -28,7 +28,7 @@ qt_material==2.12
     # via -r requirements.in
 qtwidgets==0.18
     # via -r requirements.in
-requests==2.28.0
+requests==2.28.2
     # via -r requirements.in
 urllib3==1.26.13
     # via requests
