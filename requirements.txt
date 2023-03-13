@@ -30,6 +30,6 @@ qtwidgets==0.18
     # via -r requirements.in
 requests==2.28.0
     # via -r requirements.in
-urllib3==1.26.13
+urllib3==1.26.15
     # via requests
 yt-dlp
