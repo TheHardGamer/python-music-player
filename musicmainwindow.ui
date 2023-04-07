@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MusicMainWindow</class>
+ <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
   <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>
@@ -282,7 +282,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSongs">
@@ -338,9 +338,6 @@
    <addaction name="menuLoop"/>
   </widget>
   <action name="addsongs">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset>
      <normaloff>assets/folder.png</normaloff>assets/folder.png</iconset>

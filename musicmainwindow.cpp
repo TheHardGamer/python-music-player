@@ -1,14 +1,16 @@
 #include "musicmainwindow.h"
 #include "./ui_musicmainwindow.h"
+#include "genericfns.hpp"
 
-MusicMainWindow::MusicMainWindow(QWidget *parent)
+MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MusicMainWindow)
+    , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    QAction::connect(ui->addsongs, &QAction::triggered, &musicFns->addSongs);
 }
 
-MusicMainWindow::~MusicMainWindow()
+MainWindow::~MainWindow()
 {
     delete ui;
 }

@@ -1,21 +1,21 @@
 #ifndef MUSICMAINWINDOW_H
 #define MUSICMAINWINDOW_H
 
-#include <QMainWindow>
-
+#include "genericfns.hpp"
 QT_BEGIN_NAMESPACE
-namespace Ui { class MusicMainWindow; }
+namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-class MusicMainWindow : public QMainWindow
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MusicMainWindow(QWidget *parent = nullptr);
-    ~MusicMainWindow();
+    MainWindow(QWidget *parent = nullptr);
+    ~MainWindow();
 
 private:
-    Ui::MusicMainWindow *ui;
+    Ui::MainWindow *ui;
+    genericFns *musicFns = genericFns::getInstance();
 };
 #endif // MUSICMAINWINDOW_H
